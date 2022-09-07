@@ -3,23 +3,26 @@
 */
 
 // Global npm libraries
-import {assert} from 'chai'
+import { assert } from 'chai'
 import sinon from 'sinon'
-import SlpWallet from 'minimal-slp-wallet'
+import SlpWallet from 'minimal-slp-wallet/index.js'
 
 // Local libraries
 import IpfsCoord from '../../index.js'
 import ipfs from '../mocks/ipfs-mock.js'
 
-describe('#ipfs-coord', () => {
+describe('#ipfs-coord - index.js', () => {
   let sandbox
   let uut // Unit Under Test
+  let wallet
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Restore the sandbox before each test.
     sandbox = sinon.createSandbox()
 
-    const wallet = new SlpWallet()
+    wallet = new SlpWallet()
+    await wallet.walletInfoPromise
+
     uut = new IpfsCoord({ wallet, ipfs, type: 'node.js' })
   })
 
@@ -64,6 +67,59 @@ describe('#ipfs-coord', () => {
           'The type of IPFS node (browser or node.js) must be specified.'
         )
       }
+    })
+
+    it('should override default logs', async () => {
+
+
+      uut = new IpfsCoord({
+        wallet,
+        ipfs,
+        type: 'node.js',
+        statusLog: console.log,
+        privateLog: console.log
+      })
+    })
+
+    it('should set debugLevel to 0 if not specified', () => {
+
+      uut = new IpfsCoord({
+        wallet,
+        ipfs,
+        type: 'node.js',
+        statusLog: console.log,
+        privateLog: console.log
+      })
+
+      assert.equal(uut.debugLevel, 0)
+    })
+
+    it('should set debugLevel to 2 if specified', () => {
+
+      uut = new IpfsCoord({
+        wallet,
+        ipfs,
+        type: 'node.js',
+        statusLog: console.log,
+        privateLog: console.log,
+        debugLevel: 2
+      })
+
+      assert.equal(uut.debugLevel, 2)
+    })
+
+    it('should default debugLevel to 0 non-integer is used', () => {
+
+      uut = new IpfsCoord({
+        wallet,
+        ipfs,
+        type: 'node.js',
+        statusLog: console.log,
+        privateLog: console.log,
+        debugLevel: 'abcd'
+      })
+
+      assert.equal(uut.debugLevel, 0)
     })
   })
 })
