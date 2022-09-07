@@ -3,21 +3,21 @@
 */
 
 // npm libraries
-const assert = require('chai').assert
-const sinon = require('sinon')
-const cloneDeep = require('lodash.clonedeep')
-const BCHJS = require('@psf/bch-js')
+import { assert } from 'chai'
+import sinon from 'sinon'
+import SlpWallet from 'minimal-slp-wallet/index.js'
+import cloneDeep from 'lodash.clonedeep'
 
 // local libraries
-const Pubsub = require('../../../lib/adapters/pubsub-adapter')
-const ipfsLib = require('../../mocks/ipfs-mock')
-const mockDataLib = require('../../mocks/pubsub-mocks')
-const IPFSAdapter = require('../../../lib/adapters/ipfs-adapter')
-const thisNodeMock = require('../../mocks/thisnode-mocks')
-const EncryptionAdapter = require('../../../lib/adapters/encryption-adapter')
-const BchAdapter = require('../../../lib/adapters/bch-adapter')
+import Pubsub from '../../../../lib/adapters/pubsub-adapter/index.js'
+import ipfsLib from '../../../mocks/ipfs-mock.js'
+import mockDataLib from '../../../mocks/pubsub-mocks.js'
+import IPFSAdapter from '../../../../lib/adapters/ipfs-adapter.js'
+import thisNodeMock from '../../../mocks/thisnode-mocks.js'
+import EncryptionAdapter from '../../../../lib/adapters/encryption-adapter.js'
+import BchAdapter from '../../../../lib/adapters/bch-adapter.js'
 
-describe('#pubsub-adapter', () => {
+describe('#Adapter - Pubsub', () => {
   let sandbox
   let uut
   let ipfs, encryption
@@ -29,7 +29,7 @@ describe('#pubsub-adapter', () => {
     }
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Restore the sandbox before each test.
     sandbox = sinon.createSandbox()
 
@@ -41,8 +41,9 @@ describe('#pubsub-adapter', () => {
     const ipfsAdapter = new IPFSAdapter({ ipfs, log })
 
     // Instantiate the Encryption adapater
-    const bchjs = new BCHJS()
-    const bch = new BchAdapter({ bchjs })
+    const wallet = new SlpWallet()
+    await wallet.walletInfoPromise
+    const bch = new BchAdapter({ wallet })
     encryption = new EncryptionAdapter({ bch })
 
     // Instantiate the library under test. Must instantiate dependencies first.

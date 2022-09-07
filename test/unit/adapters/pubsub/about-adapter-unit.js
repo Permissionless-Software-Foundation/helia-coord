@@ -3,11 +3,11 @@
 */
 
 // npm libraries
-const assert = require('chai').assert
-const sinon = require('sinon')
+import { assert } from 'chai'
+import sinon from 'sinon'
 
 // local libraries
-const AboutAdapter = require('../../../lib/adapters/pubsub-adapter/about-adapter')
+import AboutAdapter from '../../../../lib/adapters/pubsub-adapter/about-adapter.js'
 
 describe('#About-adapter', () => {
   let uut
