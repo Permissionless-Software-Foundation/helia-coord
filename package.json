@@ -22,5 +22,8 @@
     "minimal-slp-wallet": "5.0.3",
     "mocha": "10.0.0",
     "sinon": "14.0.0"
+  },
+  "dependencies": {
+    "bch-encrypt-lib": "2.0.0"
   }
 }
