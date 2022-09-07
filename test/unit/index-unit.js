@@ -70,8 +70,6 @@ describe('#ipfs-coord - index.js', () => {
     })
 
     it('should override default logs', async () => {
-
-
       uut = new IpfsCoord({
         wallet,
         ipfs,
@@ -82,7 +80,6 @@ describe('#ipfs-coord - index.js', () => {
     })
 
     it('should set debugLevel to 0 if not specified', () => {
-
       uut = new IpfsCoord({
         wallet,
         ipfs,
@@ -95,7 +92,6 @@ describe('#ipfs-coord - index.js', () => {
     })
 
     it('should set debugLevel to 2 if specified', () => {
-
       uut = new IpfsCoord({
         wallet,
         ipfs,
@@ -109,7 +105,6 @@ describe('#ipfs-coord - index.js', () => {
     })
 
     it('should default debugLevel to 0 non-integer is used', () => {
-
       uut = new IpfsCoord({
         wallet,
         ipfs,

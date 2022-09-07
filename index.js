@@ -28,7 +28,6 @@ class IpfsCoord {
       )
     }
 
-
     // Retrieve and/or set the debug level.
     // 0 = no debug information.
     // 1 = status logs
