@@ -7,7 +7,7 @@
   "scripts": {
     "test": "npm run lint && cross-env 'NODE_OPTIONS=--experimental-loader @istanbuljs/esm-loader-hook' nyc mocha --recursive test/unit/",
     "lint": "standard --env mocha --fix",
-    "coverage:report": "nyc --reporter=html mocha test/unit/ --recursive"
+    "coverage:report": "cross-env 'NODE_OPTIONS=--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html mocha test/unit/ --recursive"
   },
   "repository": {
     "type": "git",

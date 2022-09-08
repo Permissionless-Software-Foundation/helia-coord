@@ -7,6 +7,7 @@
 
 // Local libraries
 import Adapters from './lib/adapters/index.js'
+import UseCases from './lib/use-cases/index.js'
 
 class IpfsCoord {
   constructor (localConfig = {}) {
@@ -60,6 +61,9 @@ class IpfsCoord {
     // Load the adapter libraries.
     this.adapters = new Adapters(localConfig)
     localConfig.adapters = this.adapters
+
+    // Load the Use Cases
+    this.useCases = new UseCases(localConfig)
   }
 }
 
