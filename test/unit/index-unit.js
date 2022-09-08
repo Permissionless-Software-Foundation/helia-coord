@@ -117,4 +117,44 @@ describe('#ipfs-coord - index.js', () => {
       assert.equal(uut.debugLevel, 0)
     })
   })
+
+  describe('#start', () => {
+    it('should return true after ipfs-coord dependencies have been started.', async () => {
+      // Mock the dependencies.
+      sandbox.stub(uut.adapters.ipfs, 'start').resolves({})
+      sandbox.stub(uut.useCases.thisNode, 'createSelf').resolves({})
+      sandbox.stub(uut.useCases.relays, 'initializeRelays').resolves({})
+      sandbox.stub(uut.useCases.pubsub, 'initializePubsub').resolves({})
+      sandbox.stub(uut.controllers.timer, 'startTimers').resolves({})
+      sandbox.stub(uut, '_initializeConnections').resolves({})
+
+      const result = await uut.start()
+
+      assert.equal(result, true)
+    })
+  })
+
+  describe('#_initializeConnections', () => {
+    it('should kick-off initial connections', async () => {
+      // Mock dependencies
+      sandbox.stub(uut.useCases.relays, 'initializeRelays').resolves()
+      sandbox.stub(uut.useCases.relays, 'getCRGist').resolves()
+      sandbox.stub(uut.useCases.thisNode, 'refreshPeerConnections').resolves()
+
+      const result = await uut._initializeConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should return falses on error', async () => {
+      // Force and error
+      sandbox
+        .stub(uut.useCases.relays, 'initializeRelays')
+        .rejects(new Error('test error'))
+
+      const result = await uut._initializeConnections()
+
+      assert.equal(result, false)
+    })
+  })
 })
