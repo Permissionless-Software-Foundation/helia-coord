@@ -1,6 +1,6 @@
 /*
   A mocked instance of ipfs, for use in unit tests.
-  
+
 */
 const ipfs = {
   id: () => {

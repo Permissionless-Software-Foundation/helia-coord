@@ -5,7 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "mocha --recursive test/unit/"
+    "test": "npm run lint && cross-env 'NODE_OPTIONS=--experimental-loader @istanbuljs/esm-loader-hook' nyc mocha --recursive --exit test/unit/",
+    "lint": "standard --env mocha --fix",
+    "coverage:report": "cross-env 'NODE_OPTIONS=--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html mocha test/unit/ --recursive --exit"
   },
   "repository": {
     "type": "git",
@@ -18,9 +20,21 @@
   },
   "homepage": "https://github.com/Permissionless-Software-Foundation/ipfs-coord-esm#readme",
   "devDependencies": {
+    "@istanbuljs/esm-loader-hook": "0.2.0",
     "chai": "4.3.6",
+    "cross-env": "7.0.3",
+    "lodash.clonedeep": "4.5.0",
     "minimal-slp-wallet": "5.0.3",
     "mocha": "10.0.0",
-    "sinon": "14.0.0"
+    "nyc": "15.1.0",
+    "sinon": "14.0.0",
+    "standard": "17.0.0"
+  },
+  "dependencies": {
+    "bch-encrypt-lib": "2.0.0",
+    "uuid": "9.0.0"
+  },
+  "peerDependencies": {
+    "ipfs-http-client": ">= 58.0.0"
   }
 }
