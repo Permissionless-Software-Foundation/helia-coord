@@ -33,5 +33,8 @@
   "dependencies": {
     "bch-encrypt-lib": "2.0.0",
     "uuid": "9.0.0"
+  },
+  "peerDependencies": {
+    "ipfs-http-client": ">= 58.0.0"
   }
 }

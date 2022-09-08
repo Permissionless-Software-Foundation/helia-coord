@@ -19,7 +19,7 @@ import thisNode from '../../../mocks/thisnode-mocks.js'
 describe('#messaging-adapter', () => {
   let sandbox
   let uut
-  let ipfs
+  let ipfs, ipfsAdapter
 
   const log = {
     statusLog: () => {}
@@ -31,7 +31,7 @@ describe('#messaging-adapter', () => {
 
     // Instantiate the IPFS adapter
     ipfs = cloneDeep(ipfsLib)
-    const ipfsAdapter = new IPFSAdapter({ ipfs, log })
+    ipfsAdapter = new IPFSAdapter({ ipfs, log })
 
     // Instantiate the Encryption adapater
     const wallet = new SlpWallet()
@@ -40,7 +40,7 @@ describe('#messaging-adapter', () => {
     const encryption = new EncryptionAdapter({ bch })
 
     // Instantiate the library under test. Must instantiate dependencies first.
-    uut = new Messaging({ ipfs: ipfsAdapter, log, encryption })
+    uut = new Messaging({ ipfsAdapter, log, encryption })
   })
 
   afterEach(() => sandbox.restore())
@@ -61,7 +61,7 @@ describe('#messaging-adapter', () => {
 
     it('should throw an error if log adapter not specified', () => {
       try {
-        uut = new Messaging({ ipfs })
+        uut = new Messaging({ ipfsAdapter })
 
         assert.fail('Unexpected result')
       } catch (err) {
@@ -74,7 +74,7 @@ describe('#messaging-adapter', () => {
 
     it('should throw an error if log adapter not specified', () => {
       try {
-        uut = new Messaging({ ipfs, log })
+        uut = new Messaging({ ipfsAdapter, log })
 
         assert.fail('Unexpected result')
       } catch (err) {

@@ -20,7 +20,7 @@ import BchAdapter from '../../../../lib/adapters/bch-adapter.js'
 describe('#Adapter - Pubsub', () => {
   let sandbox
   let uut
-  let ipfs, encryption
+  let ipfs, ipfsAdapter, encryption
   let thisNode
   let mockData
 
@@ -38,7 +38,7 @@ describe('#Adapter - Pubsub', () => {
     mockData = cloneDeep(mockDataLib)
 
     // Instantiate the IPFS adapter
-    const ipfsAdapter = new IPFSAdapter({ ipfs, log })
+    ipfsAdapter = new IPFSAdapter({ ipfs, log })
 
     // Instantiate the Encryption adapater
     const wallet = new SlpWallet()
@@ -47,7 +47,7 @@ describe('#Adapter - Pubsub', () => {
     encryption = new EncryptionAdapter({ bch })
 
     // Instantiate the library under test. Must instantiate dependencies first.
-    uut = new Pubsub({ ipfs: ipfsAdapter, log, encryption, privateLog: {} })
+    uut = new Pubsub({ ipfsAdapter, log, encryption, privateLog: {} })
   })
 
   afterEach(() => sandbox.restore())
@@ -68,7 +68,7 @@ describe('#Adapter - Pubsub', () => {
 
     it('should throw an error if status log handler not specified', () => {
       try {
-        uut = new Pubsub({ ipfs })
+        uut = new Pubsub({ ipfsAdapter })
 
         assert.fail('Unexpected result')
       } catch (err) {
@@ -81,7 +81,7 @@ describe('#Adapter - Pubsub', () => {
 
     it('should throw an error if encryption library is not included', () => {
       try {
-        uut = new Pubsub({ ipfs, log })
+        uut = new Pubsub({ ipfsAdapter, log })
 
         assert.fail('Unexpected result')
       } catch (err) {
@@ -94,7 +94,7 @@ describe('#Adapter - Pubsub', () => {
 
     it('should throw an error if privateLog is not included', () => {
       try {
-        uut = new Pubsub({ ipfs, log, encryption })
+        uut = new Pubsub({ ipfsAdapter, log, encryption })
 
         assert.fail('Unexpected result')
       } catch (err) {
