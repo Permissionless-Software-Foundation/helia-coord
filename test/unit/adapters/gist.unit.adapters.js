@@ -41,5 +41,18 @@ describe('#Adapter-Gist', () => {
       assert.property(result, 'key')
       assert.equal(result.key, 'value')
     })
+
+    it('should catch and throw errors', async () => {
+      try {
+        // Force desired code path
+        sandbox.stub(uut.axios, 'get').rejects(new Error('test error'))
+
+        await uut.getCRList()
+
+        assert.fail('Unexpected result')
+      } catch (err) {
+        assert.include(err.message, 'test error')
+      }
+    })
   })
 })

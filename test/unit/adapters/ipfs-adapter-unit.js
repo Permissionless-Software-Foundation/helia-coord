@@ -48,6 +48,16 @@ describe('#Adapter - IPFS', () => {
         )
       }
     })
+
+    it('should overwrite default ports when user specifies them at run time', async () => {
+      const log = {
+        statusLog: () => {}
+      }
+      uut = new IPFSAdapter({ ipfs, log, tcpPort: 6000, wsPort: 6001 })
+
+      assert.equal(uut.tcpPort, 6000)
+      assert.equal(uut.wsPort, 6001)
+    })
   })
 
   describe('#start', () => {
@@ -58,6 +68,19 @@ describe('#Adapter - IPFS', () => {
 
       assert.property(uut, 'ipfsPeerId')
       assert.property(uut, 'ipfsMultiaddrs')
+    })
+
+    it('should configure an exteranl go-ipfs node', async () => {
+      const log = {
+        statusLog: () => {}
+      }
+      uut = new IPFSAdapter({ ipfs, log, nodeType: 'external' })
+
+      await uut.start()
+
+      // console.log('uut: ', uut)
+
+      assert.equal(uut.nodeType, 'external')
     })
 
     it('should catch and throw an error', async () => {
