@@ -16,6 +16,7 @@ import IPFSAdapter from '../../../../lib/adapters/ipfs-adapter.js'
 import thisNodeMock from '../../../mocks/thisnode-mocks.js'
 import EncryptionAdapter from '../../../../lib/adapters/encryption-adapter.js'
 import BchAdapter from '../../../../lib/adapters/bch-adapter.js'
+import { BroadcastRouter, PrivateChannelRouter } from '../../../../lib/adapters/pubsub-adapter/msg-router.js'
 
 describe('#Adapter - Pubsub', () => {
   let sandbox
@@ -275,6 +276,81 @@ describe('#Adapter - Pubsub', () => {
         // console.log('err: ', err)
         assert.include(err.message, 'Cannot read')
       }
+    })
+  })
+
+  describe('#BroadcastRouter', () => {
+    it('should route a broadcast message and return true', async () => {
+      // Mock dependencies
+      // sandbox.stub(uut.ipfs.ipfs.pubsub, 'subscribe').resolves()
+
+      // const chanName = 'test'
+      const handler = () => {}
+      const parsePubsubMessage = async () => {}
+
+      // Instantiate the Broadcast message router library
+      const bRouterOptions = {
+        handler,
+        thisNode,
+        parsePubsubMessage
+      }
+      const broadcastRouter = new BroadcastRouter(bRouterOptions)
+
+      const result = await broadcastRouter.route({})
+
+      assert.equal(result, true)
+    })
+
+    it('should catch and handle errors, and return false', async () => {
+      // Force and error
+      const handler = () => {}
+      const parsePubsubMessage = async () => {
+        throw new Error('test error')
+      }
+
+      // Instantiate the Broadcast message router library
+      const bRouterOptions = {
+        handler,
+        thisNode,
+        parsePubsubMessage
+      }
+      const broadcastRouter = new BroadcastRouter(bRouterOptions)
+
+      const result = await broadcastRouter.route({})
+
+      assert.equal(result, false)
+    })
+  })
+
+  describe('#PrivateChannelRouter', () => {
+    it('should route a private message and return true', async () => {
+      // Instantiate the Broadcast message router library
+      const pRouterOptions = {
+        thisNode,
+        messaging: uut.messaging,
+        handleNewMessage: async () => {}
+      }
+      const privateRouter = new PrivateChannelRouter(pRouterOptions)
+
+      const result = await privateRouter.route({})
+
+      assert.equal(result, true)
+    })
+
+    it('should catch and handle errors, and return false', async () => {
+      sandbox.stub(uut.messaging, 'handleIncomingData').resolves({})
+
+      // Instantiate the Private message router library
+      const pRouterOptions = {
+        thisNode,
+        messaging: uut.messaging,
+        handleNewMessage: async () => { throw new Error('test error') }
+      }
+      const privateRouter = new PrivateChannelRouter(pRouterOptions)
+
+      const result = await privateRouter.route({})
+
+      assert.equal(result, false)
     })
   })
 })

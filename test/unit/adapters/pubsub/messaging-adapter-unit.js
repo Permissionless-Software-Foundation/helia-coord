@@ -15,6 +15,7 @@ import IPFSAdapter from '../../../../lib/adapters/ipfs-adapter.js'
 import EncryptionAdapter from '../../../../lib/adapters/encryption-adapter.js'
 import BchAdapter from '../../../../lib/adapters/bch-adapter.js'
 import thisNode from '../../../mocks/thisnode-mocks.js'
+import ResendMsg from '../../../../lib/adapters/pubsub-adapter/resend-msg.js'
 
 describe('#messaging-adapter', () => {
   let sandbox
@@ -177,7 +178,7 @@ describe('#messaging-adapter', () => {
   })
 
   describe('#publishToPubsubChannel', () => {
-    it('should publish a message', async () => {
+    it('should publish a message to a pubsub channel', async () => {
       const chanName = 'fake-chanName'
 
       const inObj = {
@@ -186,6 +187,23 @@ describe('#messaging-adapter', () => {
         payload: 'fake-payload'
       }
       const msgObj = uut.generateMsgObj(inObj)
+
+      const result = await uut.publishToPubsubChannel(chanName, msgObj)
+
+      // assert.equal(true, true, 'Not throwing an error is a pass')
+      assert.equal(result, true)
+    })
+
+    it('should announce itself on the announcement pubsub channel', async () => {
+      const chanName = 'fake-chanName'
+
+      const inObj = {
+        sender: 'fake-sender',
+        receiver: 'fake-receiver',
+        payload: 'fake-payload'
+      }
+      const msgObj = uut.generateMsgObj(inObj)
+      delete msgObj.uuid
 
       const result = await uut.publishToPubsubChannel(chanName, msgObj)
 
@@ -257,7 +275,9 @@ describe('#messaging-adapter', () => {
       const msgObj = uut.generateMsgObj(inObj)
       msgObj.retryCnt = 0
 
-      const result = await uut.resendMsg(msgObj)
+      const resendMsg = new ResendMsg({ msgObj, msgLib: uut })
+
+      const result = await resendMsg.resend()
 
       assert.equal(result, 1)
     })
@@ -271,13 +291,18 @@ describe('#messaging-adapter', () => {
       const msgObj = uut.generateMsgObj(inObj)
       msgObj.retryCnt = 4
 
-      const result = await uut.resendMsg(msgObj)
+      const resendMsg = new ResendMsg({ msgObj, msgLib: uut })
+
+      const result = await resendMsg.resend()
 
       assert.equal(result, 2)
     })
 
     it('should return 0 on error', async () => {
-      const result = await uut.resendMsg()
+      // const result = await uut.resendMsg()
+      const resendMsg = new ResendMsg({ msgObj: {}, msgLib: {} })
+
+      const result = await resendMsg.resend()
 
       assert.equal(result, 0)
     })
@@ -478,6 +503,71 @@ describe('#messaging-adapter', () => {
       const result = await uut.handleIncomingData()
 
       assert.equal(result, false)
+    })
+
+    it('should return false if message originates from this node', async () => {
+      // Mock dependencies
+      uut.encryption.decryptMsg = (x) => JSON.stringify(x)
+      sandbox.stub(uut, 'sendAck').resolves()
+      sandbox.stub(uut, '_checkIfAlreadyProcessed').returns(false)
+
+      uut.nodeType = 'external'
+
+      const msg = {
+        from: '12D3KooWE6tkdArVpCHG9QN61G1cE7eCq2Q7i4bNx6CJFTDprk9f',
+        topicIDs: ['12D3KooWE6tkdArVpCHG9QN61G1cE7eCq2Q7i4bNx6CJFTDprk9f'],
+        data: new TextEncoder().encode('{"payload": {"key": "value"}}')
+      }
+
+      const result = await uut.handleIncomingData(msg, thisNode)
+      // console.log(result)
+
+      assert.equal(result, false)
+    })
+
+    it('should report debug REQUESTS from an about RPC call', async () => {
+      // Force desired code path
+      uut.encryption.decryptMsg = (x) => JSON.stringify({
+        id: 123
+      })
+      sandbox.stub(uut, 'sendAck').resolves()
+      sandbox.stub(uut, '_checkIfAlreadyProcessed').returns(false)
+
+      uut.nodeType = 'external'
+
+      const msg = {
+        from: '12D3KooWHS5A6Ey4V8fLWD64jpPn2EKi4r4btGN6FfkNgMTnfqVa',
+        topicIDs: ['12D3KooWE6tkdArVpCHG9QN61G1cE7eCq2Q7i4bNx6CJFTDprk9f'],
+        data: new TextEncoder().encode('{"payload": {"key": "value"}}')
+      }
+
+      const result = await uut.handleIncomingData(msg, thisNode)
+      // console.log(result)
+
+      assert.include(result.data.payload, '123')
+    })
+
+    it('should report debug RESPONSE from an about RPC call', async () => {
+      // Force desired code path
+      uut.encryption.decryptMsg = (x) => JSON.stringify({
+        id: 123,
+        result: true
+      })
+      sandbox.stub(uut, 'sendAck').resolves()
+      sandbox.stub(uut, '_checkIfAlreadyProcessed').returns(false)
+
+      uut.nodeType = 'external'
+
+      const msg = {
+        from: '12D3KooWHS5A6Ey4V8fLWD64jpPn2EKi4r4btGN6FfkNgMTnfqVa',
+        topicIDs: ['12D3KooWE6tkdArVpCHG9QN61G1cE7eCq2Q7i4bNx6CJFTDprk9f'],
+        data: new TextEncoder().encode('{"payload": {"key": "value"}}')
+      }
+
+      const result = await uut.handleIncomingData(msg, thisNode)
+      // console.log(result)
+
+      assert.include(result.data.payload, '123')
     })
   })
 })
