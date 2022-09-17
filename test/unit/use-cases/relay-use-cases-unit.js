@@ -94,7 +94,9 @@ describe('#relay-Use-Cases', () => {
       // Mock dependencies
       const data = {
         browser: [],
-        node: []
+        node: [{
+          ipfsId: '123'
+        }]
       }
       sandbox.stub(uut.adapters.gist, 'getCRList').resolves(data)
       sandbox.stub(uut, 'removeDuplicates').resolves()
@@ -107,9 +109,16 @@ describe('#relay-Use-Cases', () => {
     it('should load list from GitHub and connect to browser circuit relays', async () => {
       thisNode.type = 'browser'
 
+      // Force desired code path.
+      thisNode.relayData.push({
+        ipfsId: 'fake-id'
+      })
+
       // Mock dependencies
       const data = {
-        browser: [],
+        browser: [{
+          ipfsId: 'fake-id'
+        }],
         node: []
       }
       sandbox.stub(uut.adapters.gist, 'getCRList').resolves(data)
@@ -118,6 +127,19 @@ describe('#relay-Use-Cases', () => {
       const result = await uut.getCRGist(thisNode)
 
       assert.equal(result, true)
+    })
+
+    it('should catch and throw errors', async () => {
+      try {
+        // Force desired code path.
+        sandbox.stub(uut.adapters.gist, 'getCRList').rejects(new Error('test error'))
+
+        await uut.getCRGist()
+
+        assert.fail('Unexpected result')
+      } catch (err) {
+        assert.include(err.message, 'test error')
+      }
     })
   })
 
@@ -172,6 +194,15 @@ describe('#relay-Use-Cases', () => {
       await uut.connectToCRs(thisNode)
 
       assert.equal(true, true, 'Not throwing an error is a success')
+    })
+
+    it('should return false when error occurs.', async () => {
+      // Force desired code path
+      sandbox.stub(uut, 'sortRelays').throws(new Error('test error'))
+
+      const result = await uut.connectToCRs(thisNode)
+
+      assert.equal(result, false)
     })
   })
 
@@ -291,6 +322,130 @@ describe('#relay-Use-Cases', () => {
       const result = await uut.addRelay()
 
       assert.equal(result, false)
+    })
+
+    it('should skip multiaddrs with anti-patterns', async () => {
+      // Mock test data
+      const ipfsId = 'testId'
+      const thisNode = {
+        relayData: [],
+        peerData: [
+          {
+            data: {
+              ipfsId,
+              ipfsMultiaddrs: ['/ip4/addr1'],
+              isCircuitRelay: true
+            }
+          }
+        ]
+      }
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
+      sandbox
+        .stub(uut.adapters.ipfs, 'getPeers')
+        .resolves([{ peer: ipfsId, addr: '/p2p-circuit' }])
+
+      const result = await uut.addRelay(ipfsId, thisNode)
+
+      // console.log(`thisNode: ${JSON.stringify(thisNode, null, 2)}`)
+
+      // Function should return false.
+      assert.equal(result, false)
+    })
+
+    it('should not connect to peer with p2p-circuit in multiaddr', async () => {
+      // Mock test data
+      const ipfsId = 'testId'
+      const thisNode = {
+        relayData: [],
+        peerData: [
+          {
+            data: {
+              ipfsId,
+              ipfsMultiaddrs: ['addr1/p2p-circuit/addr2']
+            }
+          }
+        ]
+      }
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
+      sandbox.stub(uut.adapters.ipfs, 'disconnectFromPeer').resolves()
+      sandbox
+        .stub(uut.adapters.ipfs, 'getPeers')
+        .resolves([{ peer: ipfsId, addr: 'addr1/p2p-circuit/addr2' }])
+
+      const result = await uut.addRelay(ipfsId, thisNode)
+
+      assert.equal(result, false)
+    })
+
+    it('should report connection failure and return false', async () => {
+      // Mock test data
+      const ipfsId = 'testId'
+      const thisNode = {
+        relayData: [],
+        peerData: [
+          {
+            data: {
+              ipfsId,
+              ipfsMultiaddrs: ['/ip4/addr1'],
+              isCircuitRelay: true
+            }
+          }
+        ]
+      }
+
+      // Force desired code path.
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(false)
+
+      const result = await uut.addRelay(ipfsId, thisNode)
+
+      // console.log('thisNode: ', thisNode)
+
+      // Function should return true.
+      assert.equal(result, false)
+    })
+
+    it('should detect and add optional connection data to multiaddr', async () => {
+      // Mock test data
+      const ipfsId = 'testId'
+      const thisNode = {
+        relayData: [],
+        peerData: [
+          {
+            data: {
+              ipfsId,
+              ipfsMultiaddrs: ['/ip4/addr1'],
+              isCircuitRelay: true,
+              circuitRelayInfo: {
+                ip4: '555.555.555.555',
+                crDomain: '666.666.666.666'
+              }
+            }
+          }
+        ]
+      }
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
+      sandbox
+        .stub(uut.adapters.ipfs, 'getPeers')
+        .resolves([{ peer: ipfsId, addr: '/ip4/addr1' }])
+
+      const result = await uut.addRelay(ipfsId, thisNode)
+
+      // console.log(`thisNode: ${JSON.stringify(thisNode, null, 2)}`)
+
+      // Function should return true.
+      assert.equal(result, true)
+
+      // Assert the expected circuit relay multiaddrs have been added.
+      const ip4Exists = thisNode.peerData[0].data.ipfsMultiaddrs.filter(x => x.includes('555.555'))
+      assert.equal(ip4Exists.length, 1)
+      const dnsExists = thisNode.peerData[0].data.ipfsMultiaddrs.filter(x => x.includes('666.666'))
+      assert.equal(dnsExists.length, 1)
     })
   })
 
