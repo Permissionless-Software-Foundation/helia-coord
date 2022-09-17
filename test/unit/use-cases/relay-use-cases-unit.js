@@ -407,6 +407,46 @@ describe('#relay-Use-Cases', () => {
       // Function should return true.
       assert.equal(result, false)
     })
+
+    it('should detect and add optional connection data to multiaddr', async () => {
+      // Mock test data
+      const ipfsId = 'testId'
+      const thisNode = {
+        relayData: [],
+        peerData: [
+          {
+            data: {
+              ipfsId,
+              ipfsMultiaddrs: ['/ip4/addr1'],
+              isCircuitRelay: true,
+              circuitRelayInfo: {
+                ip4: '555.555.555.555',
+                crDomain: '666.666.666.666'
+              }
+            }
+          }
+        ]
+      }
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
+      sandbox
+        .stub(uut.adapters.ipfs, 'getPeers')
+        .resolves([{ peer: ipfsId, addr: '/ip4/addr1' }])
+
+      const result = await uut.addRelay(ipfsId, thisNode)
+
+      // console.log(`thisNode: ${JSON.stringify(thisNode, null, 2)}`)
+
+      // Function should return true.
+      assert.equal(result, true)
+
+      // Assert the expected circuit relay multiaddrs have been added.
+      const ip4Exists = thisNode.peerData[0].data.ipfsMultiaddrs.filter(x => x.includes('555.555'))
+      assert.equal(ip4Exists.length, 1)
+      const dnsExists = thisNode.peerData[0].data.ipfsMultiaddrs.filter(x => x.includes('666.666'))
+      assert.equal(dnsExists.length, 1)
+    })
   })
 
   describe('#measureRelays', () => {
