@@ -5,7 +5,7 @@
 // npm libraries
 import { assert } from 'chai'
 import sinon from 'sinon'
-import SlpWallet from 'minimal-slp-wallet/index.js'
+import SlpWallet from 'minimal-slp-wallet'
 
 // local libraries
 import BchLib from '../../../lib/adapters/bch-adapter.js'

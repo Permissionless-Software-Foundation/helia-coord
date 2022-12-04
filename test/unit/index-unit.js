@@ -5,7 +5,7 @@
 // Global npm libraries
 import { assert } from 'chai'
 import sinon from 'sinon'
-import SlpWallet from 'minimal-slp-wallet/index.js'
+import SlpWallet from 'minimal-slp-wallet'
 
 // Local libraries
 import IpfsCoord from '../../index.js'

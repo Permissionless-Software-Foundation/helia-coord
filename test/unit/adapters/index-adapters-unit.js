@@ -4,7 +4,7 @@
 
 // npm libraries
 import { assert } from 'chai'
-import SlpWallet from 'minimal-slp-wallet/index.js'
+import SlpWallet from 'minimal-slp-wallet'
 
 // Local libraries
 import Adapters from '../../../lib/adapters/index.js'
