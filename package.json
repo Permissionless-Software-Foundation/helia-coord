@@ -2,7 +2,7 @@
   "name": "ipfs-coord-esm",
   "version": "9.0.0",
   "description": "A JS library for helping IPFS peers coordinate, find a common interest, and stay connected around that interest.",
-  "main": "index.js",
+  "main": "./index.js",
   "type": "module",
   "scripts": {
     "test": "npm run lint && cross-env 'NODE_OPTIONS=--experimental-loader @istanbuljs/esm-loader-hook' nyc mocha --recursive --exit test/unit/",
@@ -24,7 +24,7 @@
     "chai": "4.3.6",
     "cross-env": "7.0.3",
     "lodash.clonedeep": "4.5.0",
-    "minimal-slp-wallet": "5.0.3",
+    "minimal-slp-wallet": "5.5.4",
     "mocha": "10.0.0",
     "nyc": "15.1.0",
     "sinon": "14.0.0",
@@ -36,5 +36,17 @@
   },
   "peerDependencies": {
     "ipfs-http-client": ">= 58.0.0"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "browser": "./index.js",
+        "node": "./index.js",
+        "default": "./index.js"
+      },
+      "require": {
+        "default": "./index.js"
+      }
+    }
   }
 }
