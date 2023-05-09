@@ -11,7 +11,7 @@
 import { create } from 'ipfs-http-client'
 // const IPFS = require('/home/trout/work/personal/js-ipfs/packages/ipfs')
 // const BCHJS = require('@psf/bch-js')
-import SlpWallet from 'minimal-slp-wallet/index.js'
+import SlpWallet from 'minimal-slp-wallet'
 // const IpfsCoord = require('ipfs-coord')
 import IpfsCoord from '../index.js'
 import http from 'http'
