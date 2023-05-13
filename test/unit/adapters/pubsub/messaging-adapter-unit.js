@@ -333,12 +333,15 @@ describe('#messaging-adapter', () => {
 
     it('should catch and throw errors', async () => {
       try {
+        // Force an error
+        sandbox.stub(uut.msgQueue, 'push').throws(new Error('test error'))
+
         await uut.addMsgToQueue()
 
         assert.fail('Unexpected code path')
       } catch (err) {
         // console.log('err: ', err)
-        assert.include(err.message, 'Cannot set')
+        assert.include(err.message, 'test error')
       }
     })
   })
