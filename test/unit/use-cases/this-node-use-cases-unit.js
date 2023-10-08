@@ -142,8 +142,40 @@ describe('#thisNode-Use-Cases', () => {
       assert.equal(uut.thisNode.peerData.length, 1)
     })
 
-    // TODO: Create new test case:
-    // it('should not update an existing peer if broadcast message is older the current one')'
+    it('should not update an existing peer if broadcast message is older the current one', async () => {
+      // Mock dependencies
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+
+      const announceObj1 = {
+        from: 'peerId',
+        data: {
+          orbitdb: 'orbitdbId',
+          broadcastedAt: new Date('10/07/2023')
+        }
+      }
+
+      const announceObj2 = {
+        from: 'peerId',
+        data: {
+          orbitdb: 'orbitdbId',
+          broadcastedAt: new Date('10/05/2023')
+        }
+      }
+
+      await uut.createSelf({ type: 'node.js' })
+
+      // Add the new peer
+      await uut.addSubnetPeer(announceObj1)
+
+      // Simulate a second announcement object.
+      const result = await uut.addSubnetPeer(announceObj2)
+      // console.log('result: ', result)
+
+      assert.equal(result, true)
+
+      // peerData array should only have one peer.
+      assert.equal(uut.thisNode.peerData.length, 1)
+    })
 
     it('should catch and report an error', async () => {
       try {

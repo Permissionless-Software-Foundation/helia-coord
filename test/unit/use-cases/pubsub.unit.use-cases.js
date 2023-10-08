@@ -17,12 +17,13 @@ const adapters = new AdapterMock()
 describe('#pubsub-Use-Cases', () => {
   let uut
   let sandbox
+  let thisNodeUseCases
 
   beforeEach(() => {
     // Restore the sandbox before each test.
     sandbox = sinon.createSandbox()
 
-    const thisNodeUseCases = new ThisNodeUseCases({
+    thisNodeUseCases = new ThisNodeUseCases({
       adapters,
       statusLog: () => {}
     })
@@ -63,6 +64,27 @@ describe('#pubsub-Use-Cases', () => {
           'thisNode use cases required when instantiating Pubsub Use Cases library.'
         )
       }
+    })
+
+    it('should allow parent app to override coinjoin pubsub handler', () => {
+      const localHandler = () => {}
+
+      // Use default handler
+      uut = new PubsubUseCases({
+        adapters: {},
+        thisNodeUseCases
+      })
+      const normalHandleResult = uut.coinjoinPubsubHandler()
+      assert.equal(normalHandleResult, true)
+
+      // Replace default handler
+      uut = new PubsubUseCases({
+        adapters: {},
+        thisNodeUseCases,
+        coinjoinPubsubHandler: localHandler
+      })
+
+      assert.isOk(uut.coinjoinPubsubHandler)
     })
   })
 
