@@ -109,8 +109,7 @@ describe('#Adapter - Pubsub', () => {
 
   describe('#parsePubsubMessage', () => {
     it('should parse a pubsub message', async () => {
-      const handler = () => {
-      }
+      const handler = () => {}
 
       const result = await uut.parsePubsubMessage(mockData.mockMsg, handler, thisNode)
 
@@ -149,6 +148,18 @@ describe('#Adapter - Pubsub', () => {
 
       // assert.equal(true, true, 'Not throwing an error is a pass')
       assert.equal(result, true)
+    })
+
+    it('should throw an error if data can not be parsd', async () => {
+      const handler = () => {}
+
+      // Force desired code path
+      mockData.mockMsg.data = Buffer.from('54234', 'hex')
+
+      const result = await uut.parsePubsubMessage(mockData.mockMsg, handler, thisNode)
+      // console.log('result: ', result)
+
+      assert.equal(result, false)
     })
   })
 

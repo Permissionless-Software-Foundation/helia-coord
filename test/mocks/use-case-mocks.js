@@ -13,7 +13,8 @@ class UseCasesMock {
       connectToCRs: () => {},
       addRelay: () => {},
       measureRelays: () => {},
-      sortRelays: obj => obj
+      sortRelays: obj => obj,
+      removeDuplicates: () => {}
     }
     this.pubsub = {}
     this.peer = {}
