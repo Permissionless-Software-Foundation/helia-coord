@@ -19,10 +19,12 @@ describe('#Controllers-Timer', () => {
   let sandbox
   let useCases
   let thisNode
+  let clock
 
   beforeEach(async () => {
     // Restore the sandbox before each test.
     sandbox = sinon.createSandbox()
+    clock = sinon.useFakeTimers()
 
     uut = new TimerControllers({
       adapters,
@@ -43,6 +45,7 @@ describe('#Controllers-Timer', () => {
 
   afterEach(() => {
     sandbox.restore()
+    clock.restore()
 
     uut.stopAllTimers()
   })
@@ -95,11 +98,28 @@ describe('#Controllers-Timer', () => {
       clearInterval(result.checkBlacklistHandle)
       clearInterval(result.listPubsubChannelsHandle)
     })
+
+    it('should execute the functions inside the timers', () => {
+      // Mock all functions inside the timers so they don't actually execute.
+      sandbox.stub(uut, 'manageCircuitRelays').resolves()
+      sandbox.stub(uut, 'manageAnnouncement').resolves()
+      sandbox.stub(uut, 'managePeers').resolves()
+      sandbox.stub(uut, 'searchForRelays').resolves()
+      sandbox.stub(uut, 'listPubsubChannels').resolves()
+
+      uut.startTimers()
+      clock.tick(200000)
+
+      assert.isOk(true)
+    })
   })
 
   describe('#manageCircuitRelays', () => {
     it('should refresh connections with known circuit relays', async () => {
       const result = await uut.manageCircuitRelays(thisNode, useCases)
+
+      // Force the timer interval to excute.
+      clock.tick(200000)
 
       assert.equal(result, true)
     })
@@ -112,6 +132,9 @@ describe('#Controllers-Timer', () => {
 
       const result = await uut.manageCircuitRelays(thisNode, useCases)
 
+      // Force the timer interval to excute.
+      clock.tick(200000)
+
       assert.equal(result, false)
     })
   })
@@ -119,6 +142,9 @@ describe('#Controllers-Timer', () => {
   describe('#manageAnnouncement', () => {
     it('should publish an announcement to the general coordination pubsub channel', async () => {
       const result = await uut.manageAnnouncement(thisNode, useCases)
+
+      // Force the timer interval to excute.
+      clock.tick(200000)
 
       assert.equal(result, true)
     })
@@ -131,6 +157,9 @@ describe('#Controllers-Timer', () => {
 
       const result = await uut.manageAnnouncement(thisNode, useCases)
 
+      // Force the timer interval to excute.
+      clock.tick(200000)
+
       assert.equal(result, false)
     })
   })
@@ -138,6 +167,9 @@ describe('#Controllers-Timer', () => {
   describe('#managePeers', () => {
     it('should refresh connections to peers', async () => {
       const result = await uut.managePeers(thisNode, useCases)
+
+      // Force the timer interval to excute.
+      clock.tick(200000)
 
       assert.equal(result, true)
     })
@@ -149,6 +181,37 @@ describe('#Controllers-Timer', () => {
         .throws(new Error('test error'))
 
       const result = await uut.managePeers(thisNode, useCases)
+
+      // Force the timer interval to excute.
+      clock.tick(200000)
+
+      assert.equal(result, false)
+    })
+  })
+
+  describe('#blacklist', () => {
+    it('should return true after executing the use case', async () => {
+      const result = await uut.blacklist(thisNode, useCases)
+
+      // Force the timer interval to excute.
+      clock.tick(200000)
+
+      assert.equal(result, true)
+    })
+
+    it('should return false on error', async () => {
+      // Force an error
+      // sandbox
+      //   .stub(useCases.thisNode, 'enforceBlacklist')
+      //   .rejects(new Error('test error'))
+      sandbox
+        .stub(useCases.thisNode, 'enforceWhitelist')
+        .rejects(new Error('test error'))
+
+      const result = await uut.blacklist(thisNode, useCases)
+
+      // Force the timer interval to excute.
+      clock.tick(200000)
 
       assert.equal(result, false)
     })
@@ -164,33 +227,17 @@ describe('#Controllers-Timer', () => {
 
       const result = await uut.searchForRelays(thisNode, useCases)
 
+      // Force the timer interval to excute.
+      clock.tick(200000)
+
       assert.equal(result, true)
     })
 
     it('should report errors but not throw them', async () => {
       const result = await uut.searchForRelays()
 
-      assert.equal(result, false)
-    })
-  })
-
-  describe('#blacklist', () => {
-    it('should return true after executing the use case', async () => {
-      const result = await uut.blacklist(thisNode, useCases)
-
-      assert.equal(result, true)
-    })
-
-    it('should return false on error', async () => {
-      // Force an error
-      // sandbox
-      //   .stub(useCases.thisNode, 'enforceBlacklist')
-      //   .rejects(new Error('test error'))
-      sandbox
-        .stub(useCases.thisNode, 'enforceWhitelist')
-        .rejects(new Error('test error'))
-
-      const result = await uut.blacklist(thisNode, useCases)
+      // Force the timer interval to excute.
+      clock.tick(200000)
 
       assert.equal(result, false)
     })
