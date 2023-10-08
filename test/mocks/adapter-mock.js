@@ -9,8 +9,8 @@ class AdaptersMock {
       ipfsMultiaddrs: ['addr1', 'addr2'],
       ipfs: {
         pubsub: {
-          subscribe: () => {
-          }
+          subscribe: () => {},
+          ls: async () => {}
         }
       },
       getPeers: () => {

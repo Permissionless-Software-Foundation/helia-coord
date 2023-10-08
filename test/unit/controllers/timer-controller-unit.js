@@ -41,7 +41,11 @@ describe('#Controllers-Timer', () => {
     useCases = new UseCasesMock()
   })
 
-  afterEach(() => sandbox.restore())
+  afterEach(() => {
+    sandbox.restore()
+
+    uut.stopAllTimers()
+  })
 
   after(() => {
     console.log('Stopping all timers')
@@ -79,27 +83,25 @@ describe('#Controllers-Timer', () => {
       assert.property(result, 'circuitRelayTimerHandle')
       assert.property(result, 'announceTimerHandle')
       assert.property(result, 'peerTimerHandle')
+      assert.property(result, 'relaySearchHandle')
+      assert.property(result, 'checkBlacklistHandle')
+      assert.property(result, 'listPubsubChannelsHandle')
 
       // Clean up test by stopping the timers.
       clearInterval(result.circuitRelayTimerHandle)
       clearInterval(result.announceTimerHandle)
       clearInterval(result.peerTimerHandle)
+      clearInterval(result.relaySearchHandle)
+      clearInterval(result.checkBlacklistHandle)
+      clearInterval(result.listPubsubChannelsHandle)
     })
   })
 
   describe('#manageCircuitRelays', () => {
     it('should refresh connections with known circuit relays', async () => {
-      await uut.manageCircuitRelays({}, useCases)
+      const result = await uut.manageCircuitRelays(thisNode, useCases)
 
-      assert.isOk(true, 'Not throwing an error is a pass')
-    })
-
-    it('should give status update if debugLevel is true', async () => {
-      uut.debugLevel = 1
-
-      await uut.manageCircuitRelays({}, useCases)
-
-      assert.isOk(true, 'Not throwing an error is a pass')
+      assert.equal(result, true)
     })
 
     it('should catch and report an error', async () => {
@@ -108,22 +110,14 @@ describe('#Controllers-Timer', () => {
         .stub(useCases.relays, 'connectToCRs')
         .rejects(new Error('test error'))
 
-      await uut.manageCircuitRelays(thisNode, useCases)
+      const result = await uut.manageCircuitRelays(thisNode, useCases)
 
-      assert.isOk(true, 'Not throwing an error is a pass')
+      assert.equal(result, false)
     })
   })
 
   describe('#manageAnnouncement', () => {
     it('should publish an announcement to the general coordination pubsub channel', async () => {
-      const result = await uut.manageAnnouncement(thisNode, useCases)
-
-      assert.equal(result, true)
-    })
-
-    it('should give status update if debugLevel is true', async () => {
-      uut.debugLevel = 1
-
       const result = await uut.manageAnnouncement(thisNode, useCases)
 
       assert.equal(result, true)
@@ -135,22 +129,14 @@ describe('#Controllers-Timer', () => {
         .stub(thisNode.schema, 'announcement')
         .throws(new Error('test error'))
 
-      await uut.manageAnnouncement(thisNode, useCases)
+      const result = await uut.manageAnnouncement(thisNode, useCases)
 
-      assert.isOk(true, 'Not throwing an error is a pass')
+      assert.equal(result, false)
     })
   })
 
   describe('#managePeers', () => {
     it('should refresh connections to peers', async () => {
-      const result = await uut.managePeers(thisNode, useCases)
-
-      assert.equal(result, true)
-    })
-
-    it('should give status update if debugLevel is true', async () => {
-      uut.debugLevel = 1
-
       const result = await uut.managePeers(thisNode, useCases)
 
       assert.equal(result, true)
@@ -162,9 +148,9 @@ describe('#Controllers-Timer', () => {
         .stub(useCases.thisNode, 'refreshPeerConnections')
         .throws(new Error('test error'))
 
-      await uut.managePeers(thisNode, useCases)
+      const result = await uut.managePeers(thisNode, useCases)
 
-      assert.isOk(true, 'Not throwing an error is a pass')
+      assert.equal(result, false)
     })
   })
 
@@ -176,18 +162,15 @@ describe('#Controllers-Timer', () => {
         peerData: [{ from: 'id2', data: { isCircuitRelay: true } }]
       }
 
-      await uut.searchForRelays(thisNode, useCases)
+      const result = await uut.searchForRelays(thisNode, useCases)
 
-      // Cleanup test by disabling the interval
-      clearInterval(uut.relaySearch)
-
-      assert.isOk(true, 'Not throwing an error is a pass')
+      assert.equal(result, true)
     })
 
     it('should report errors but not throw them', async () => {
-      await uut.searchForRelays()
+      const result = await uut.searchForRelays()
 
-      assert.isOk(true, 'Not throwing an error is a pass')
+      assert.equal(result, false)
     })
   })
 
@@ -212,4 +195,20 @@ describe('#Controllers-Timer', () => {
       assert.equal(result, false)
     })
   })
+
+  describe('#listPubsubChannels', () => {
+    it('should list pubsub channels', async () => {
+      const result = await uut.listPubsubChannels()
+
+      assert.equal(result, true)
+    })
+  })
+
+  // describe('#monitorBandwidth', () => {
+  //   it('should report bandwidth', async () => {
+  //     const result = await uut.monitorBandwidth(thisNode, useCases)
+
+  //     assert.equal(result, true)
+  //   })
+  // })
 })
