@@ -31,7 +31,14 @@ const ipfs = {
     },
     getMultiaddrs: () => [],
     dial: async () => {},
-    getPeers: async () => []
+    getPeers: async () => [],
+    services: {
+      pubsub: {
+        publish: async () => {},
+        subscribe: async () => {},
+        subscriptions: []
+      }
+    }
   }
 }
 

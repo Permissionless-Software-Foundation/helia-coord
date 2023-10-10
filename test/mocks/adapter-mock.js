@@ -11,6 +11,18 @@ class AdaptersMock {
         pubsub: {
           subscribe: () => {},
           ls: async () => {}
+        },
+        libp2p: {
+          getMultiaddrs: () => [],
+          dial: async () => {},
+          getPeers: async () => [],
+          services: {
+            pubsub: {
+              publish: async () => {},
+              subscribe: async () => {},
+              subscriptions: []
+            }
+          }
         }
       },
       getPeers: () => {
