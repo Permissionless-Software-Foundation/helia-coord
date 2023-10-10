@@ -29,9 +29,9 @@ const ipfs = {
     peerId: {
       toString: () => 'fake-peerId'
     },
-    getMultiaddrs: () => [],
+    getMultiaddrs: () => ['a', 'b'],
     dial: async () => {},
-    getPeers: async () => [],
+    getPeers: async () => ['a', 'b'],
     services: {
       pubsub: {
         publish: async () => {},
