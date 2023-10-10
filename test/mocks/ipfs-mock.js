@@ -24,6 +24,21 @@ const ipfs = {
     set: () => {},
     get: () => {},
     getAll: () => {}
+  },
+  libp2p: {
+    peerId: {
+      toString: () => 'fake-peerId'
+    },
+    getMultiaddrs: () => [],
+    dial: async () => {},
+    getPeers: async () => [],
+    services: {
+      pubsub: {
+        publish: async () => {},
+        subscribe: async () => {},
+        subscriptions: []
+      }
+    }
   }
 }
 

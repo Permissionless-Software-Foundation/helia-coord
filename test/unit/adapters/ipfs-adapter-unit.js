@@ -86,7 +86,8 @@ describe('#Adapter - IPFS', () => {
     it('should catch and throw an error', async () => {
       try {
         // Force an error
-        sandbox.stub(uut.ipfs, 'id').rejects(new Error('test error'))
+        // sandbox.stub(uut.ipfs, 'id').rejects(new Error('test error'))
+        sandbox.stub(uut.ipfs.libp2p.peerId, 'toString').throws(new Error('test error'))
 
         await uut.start()
 
@@ -99,13 +100,9 @@ describe('#Adapter - IPFS', () => {
 
   describe('#connectToPeer', () => {
     it('should return true after connecting to peer', async () => {
-      const result = await uut.connectToPeer('fakeId')
-
-      assert.equal(result, true)
-    })
-
-    it('should report status when debugLevel is greater than zero', async () => {
-      uut.debugLevel = 1
+      // Mock dependencies
+      sandbox.stub(uut.ipfs.libp2p, 'dial').resolves()
+      sandbox.stub(uut, 'multiaddr').returns()
 
       const result = await uut.connectToPeer('fakeId')
 
@@ -154,7 +151,7 @@ describe('#Adapter - IPFS', () => {
     it('should catch and throw an error', async () => {
       try {
         // Force an error
-        sandbox.stub(uut.ipfs.swarm, 'peers').rejects(new Error('test error'))
+        sandbox.stub(uut.ipfs.libp2p, 'getPeers').rejects(new Error('test error'))
 
         await uut.getPeers()
 
