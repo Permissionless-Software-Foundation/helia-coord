@@ -20,7 +20,8 @@ class AdaptersMock {
             pubsub: {
               publish: async () => {},
               subscribe: async () => {},
-              subscriptions: []
+              subscriptions: [],
+              getTopics: () => []
             }
           }
         }
