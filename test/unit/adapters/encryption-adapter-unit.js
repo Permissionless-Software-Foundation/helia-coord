@@ -49,6 +49,24 @@ describe('#Adapters - Encryption', () => {
         )
       }
     })
+
+    it('should throw an error if log adapter is not included', async () => {
+      try {
+        // Instantiate bch adapter.
+        wallet = new SlpWallet()
+        await wallet.walletInfoPromise
+        const bch = new BchAdapter({ wallet })
+
+        uut = new EncryptionAdapter({ bch })
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(
+          err.message,
+          'Must pass in an instance of log Adapter when instantiating the encryption Adapter library.'
+        )
+      }
+    })
   })
 
   describe('#decryptMsg', () => {
