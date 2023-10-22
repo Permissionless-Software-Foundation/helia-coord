@@ -37,7 +37,7 @@ describe('#ResendMsg-adapter', () => {
     const wallet = new SlpWallet()
     await wallet.walletInfoPromise
     const bch = new BchAdapter({ wallet })
-    const encryption = new EncryptionAdapter({ bch })
+    const encryption = new EncryptionAdapter({ bch, log })
 
     const msgLib = new Messaging({ ipfsAdapter, log, encryption })
     const msgObj = false
