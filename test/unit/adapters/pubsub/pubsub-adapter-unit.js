@@ -45,7 +45,7 @@ describe('#Adapter - Pubsub', () => {
     const wallet = new SlpWallet()
     await wallet.walletInfoPromise
     const bch = new BchAdapter({ wallet })
-    encryption = new EncryptionAdapter({ bch })
+    encryption = new EncryptionAdapter({ bch, log })
 
     // Instantiate the library under test. Must instantiate dependencies first.
     uut = new Pubsub({ ipfsAdapter, log, encryption, privateLog: {} })

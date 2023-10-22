@@ -10,6 +10,7 @@ import SlpWallet from 'minimal-slp-wallet'
 // local libraries
 import EncryptionAdapter from '../../../lib/adapters/encryption-adapter.js'
 import BchAdapter from '../../../lib/adapters/bch-adapter.js'
+import LogsAdapter from '../../../lib/adapters/logs-adapter.js'
 
 describe('#Adapters - Encryption', () => {
   let uut
@@ -20,13 +21,17 @@ describe('#Adapters - Encryption', () => {
     // Restore the sandbox before each test.
     sandbox = sinon.createSandbox()
 
+    // Instantiate bch adapter.
     wallet = new SlpWallet()
     await wallet.walletInfoPromise
-
     const bch = new BchAdapter({ wallet })
 
+    // Instantiate log adapter.
+    const statusLog = () => {}
+    const log = new LogsAdapter({ statusLog })
+
     // Instantiate the library under test. Must instantiate dependencies first.
-    uut = new EncryptionAdapter({ bch })
+    uut = new EncryptionAdapter({ bch, log })
   })
 
   afterEach(() => sandbox.restore())
@@ -59,19 +64,15 @@ describe('#Adapters - Encryption', () => {
       assert.isOk(result)
     })
 
-    it('should handle BAD MAC error messages', async () => {
-      try {
-        // Force a BAD MAC error
-        sandbox
-          .stub(uut.bchEncrypt.encryption, 'decryptFile')
-          .rejects(new Error('Bad MAC'))
+    it('should return false on BAD MAC error messages', async () => {
+      // Force a BAD MAC error
+      sandbox
+        .stub(uut.bchEncrypt.encryption, 'decryptFile')
+        .rejects(new Error('Bad MAC'))
 
-        await uut.decryptMsg('F6')
+      const result = await uut.decryptMsg('F6')
 
-        assert.fail('Unexpected code path')
-      } catch (err) {
-        assert.include(err.message, 'Bad MAC. Could not decrypt message.')
-      }
+      assert.equal(result, false)
     })
 
     it('should catch and throw an error', async () => {
