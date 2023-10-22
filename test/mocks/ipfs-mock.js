@@ -36,7 +36,8 @@ const ipfs = {
       pubsub: {
         publish: async () => {},
         subscribe: async () => {},
-        subscriptions: []
+        subscriptions: [],
+        addEventListener: () => {}
       }
     }
   }

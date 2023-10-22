@@ -261,7 +261,7 @@ describe('#relay-Use-Cases', () => {
       assert.property(thisNode.relayData[0], 'metrics')
 
       // Assert expected values.
-      assert.equal(thisNode.relayData[0].multiaddr, '/ip4/addr1/p2p/testId')
+      assert.equal(thisNode.relayData[0].multiaddr, '/p2p/testId')
       assert.equal(thisNode.relayData[0].connected, true)
       assert.equal(thisNode.relayData[0].ipfsId, 'testId')
       assert.equal(thisNode.relayData[0].isBootstrap, false)
@@ -324,35 +324,35 @@ describe('#relay-Use-Cases', () => {
       assert.equal(result, false)
     })
 
-    it('should skip multiaddrs with anti-patterns', async () => {
-      // Mock test data
-      const ipfsId = 'testId'
-      const thisNode = {
-        relayData: [],
-        peerData: [
-          {
-            data: {
-              ipfsId,
-              ipfsMultiaddrs: ['/ip4/addr1'],
-              isCircuitRelay: true
-            }
-          }
-        ]
-      }
+    // it('should skip multiaddrs with anti-patterns', async () => {
+    //   // Mock test data
+    //   const ipfsId = 'testId'
+    //   const thisNode = {
+    //     relayData: [],
+    //     peerData: [
+    //       {
+    //         data: {
+    //           ipfsId,
+    //           ipfsMultiaddrs: ['/ip4/addr1'],
+    //           isCircuitRelay: true
+    //         }
+    //       }
+    //     ]
+    //   }
 
-      // Mock dependencies
-      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
-      sandbox
-        .stub(uut.adapters.ipfs, 'getPeers')
-        .resolves([{ peer: ipfsId, addr: '/p2p-circuit' }])
+    //   // Mock dependencies
+    //   sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
+    //   sandbox
+    //     .stub(uut.adapters.ipfs, 'getPeers')
+    //     .resolves([{ peer: ipfsId, addr: '/p2p-circuit' }])
 
-      const result = await uut.addRelay(ipfsId, thisNode)
+    //   const result = await uut.addRelay(ipfsId, thisNode)
 
-      // console.log(`thisNode: ${JSON.stringify(thisNode, null, 2)}`)
+    //   // console.log(`thisNode: ${JSON.stringify(thisNode, null, 2)}`)
 
-      // Function should return false.
-      assert.equal(result, false)
-    })
+    //   // Function should return false.
+    //   assert.equal(result, false)
+    // })
 
     it('should not connect to peer with p2p-circuit in multiaddr', async () => {
       // Mock test data

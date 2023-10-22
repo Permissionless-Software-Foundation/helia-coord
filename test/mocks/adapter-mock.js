@@ -21,7 +21,8 @@ class AdaptersMock {
               publish: async () => {},
               subscribe: async () => {},
               subscriptions: [],
-              getTopics: () => []
+              getTopics: () => [],
+              addEventListener: () => {}
             }
           }
         }
