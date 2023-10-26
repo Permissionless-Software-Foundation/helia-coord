@@ -75,7 +75,6 @@ class IpfsCoord {
   // initialized and has had a chance to connect to circuit relays and
   // coordination pubsub channels.
   async start () {
-
     // Wait for the IPFS to finish initializing, then retrieve information
     // about the node like it's ID and multiaddrs.
     await this.adapters.ipfs.start()
