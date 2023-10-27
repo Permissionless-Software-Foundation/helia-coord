@@ -447,6 +447,61 @@ describe('#relay-Use-Cases', () => {
       const dnsExists = thisNode.peerData[0].data.ipfsMultiaddrs.filter(x => x.includes('666.666'))
       assert.equal(dnsExists.length, 1)
     })
+
+    it('should filter out undesired multiaddrs', async () => {
+      // Mock test data
+      const ipfsId = 'testId'
+      const thisNode = {
+        relayData: [],
+        peerData: [
+          {
+            data: {
+              ipfsId,
+              ipfsMultiaddrs: [
+                'ip4/tcp/127.0.0.1/addr1',
+                'ip4/udp/123.456.789.1/addr1',
+                'ip4/quic/123.456.789.1/addr1',
+                'ip4/tcp/123.456.789.1/p2p-circuit/p2p/addr1',
+                '/ip4/addr1'
+              ],
+              isCircuitRelay: true
+            }
+          }
+        ]
+      }
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
+      sandbox
+        .stub(uut.adapters.ipfs, 'getPeers')
+        .resolves([{ peer: ipfsId, addr: '/ip4/addr1' }])
+
+      const result = await uut.addRelay(ipfsId, thisNode)
+
+      // console.log('thisNode: ', thisNode)
+
+      // Function should return true.
+      assert.equal(result, true)
+
+      // relayData array should be updated
+      assert.isArray(thisNode.relayData) // Its an array.
+      assert.equal(thisNode.relayData.length, 1) //  Should be one element
+
+      // Assert expected properties of the object.
+      assert.property(thisNode.relayData[0], 'multiaddr')
+      assert.property(thisNode.relayData[0], 'connected')
+      assert.property(thisNode.relayData[0], 'updatedAt')
+      assert.property(thisNode.relayData[0], 'ipfsId')
+      assert.property(thisNode.relayData[0], 'isBootstrap')
+      assert.property(thisNode.relayData[0], 'metrics')
+
+      // Assert expected values.
+      assert.include(thisNode.relayData[0].multiaddr, '/p2p/testId')
+      assert.equal(thisNode.relayData[0].connected, true)
+      assert.equal(thisNode.relayData[0].ipfsId, 'testId')
+      assert.equal(thisNode.relayData[0].isBootstrap, false)
+      assert.isArray(thisNode.relayData[0].metrics.aboutLatency)
+    })
   })
 
   describe('#measureRelays', () => {
