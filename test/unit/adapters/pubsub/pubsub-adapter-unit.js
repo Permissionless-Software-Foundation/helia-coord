@@ -17,6 +17,7 @@ import thisNodeMock from '../../../mocks/thisnode-mocks.js'
 import EncryptionAdapter from '../../../../lib/adapters/encryption-adapter.js'
 import BchAdapter from '../../../../lib/adapters/bch-adapter.js'
 import { BroadcastRouter, PrivateChannelRouter } from '../../../../lib/adapters/pubsub-adapter/msg-router.js'
+import globalConfig from '../../../../config/global-config.js'
 
 describe('#Adapter - Pubsub', () => {
   let sandbox
@@ -109,6 +110,9 @@ describe('#Adapter - Pubsub', () => {
 
   describe('#parsePubsubMessage', () => {
     it('should parse a pubsub message', async () => {
+      // Mock dependencies
+      sandbox.stub(uut, 'checkForDuplicateMsg').returns(true)
+
       const handler = () => {}
 
       const msg = {
@@ -119,7 +123,7 @@ describe('#Adapter - Pubsub', () => {
         }
       }
 
-      const result = await uut.parsePubsubMessage(msg, handler, thisNode)
+      const result = await uut.parsePubsubMessage({ msg, handler, thisNode })
 
       // assert.equal(true, true, 'Not throwing an error is a pass')
       assert.equal(result, true)
@@ -137,7 +141,7 @@ describe('#Adapter - Pubsub', () => {
         }
       }
 
-      const result = await uut.parsePubsubMessage(msg, handler, thisNode)
+      const result = await uut.parsePubsubMessage({ msg, handler, thisNode })
 
       // assert.equal(true, true, 'Not throwing an error is a pass')
       assert.equal(result, true)
@@ -166,7 +170,7 @@ describe('#Adapter - Pubsub', () => {
         }
       }
 
-      const result = await uut.parsePubsubMessage(msg, handler, thisNode)
+      const result = await uut.parsePubsubMessage({ msg, handler, thisNode })
 
       // assert.equal(true, true, 'Not throwing an error is a pass')
       assert.equal(result, true)
@@ -178,7 +182,7 @@ describe('#Adapter - Pubsub', () => {
       // Force desired code path
       mockData.mockMsg.data = Buffer.from('54234', 'hex')
 
-      const result = await uut.parsePubsubMessage(mockData.mockMsg, handler, thisNode)
+      const result = await uut.parsePubsubMessage({ msg: mockData.mockMsg, handler, thisNode })
       // console.log('result: ', result)
 
       assert.equal(result, false)
@@ -329,7 +333,12 @@ describe('#Adapter - Pubsub', () => {
       }
       const broadcastRouter = new BroadcastRouter(bRouterOptions)
 
-      const result = await broadcastRouter.route({})
+      const msg = {
+        detail: {
+          topic: globalConfig.DEFAULT_COORDINATION_ROOM
+        }
+      }
+      const result = await broadcastRouter.route(msg)
 
       assert.equal(result, true)
     })
@@ -365,7 +374,13 @@ describe('#Adapter - Pubsub', () => {
       }
       const privateRouter = new PrivateChannelRouter(pRouterOptions)
 
-      const result = await privateRouter.route({})
+      const msg = {
+        detail: {
+          topic: thisNode.ipfsId
+        }
+      }
+
+      const result = await privateRouter.route(msg)
 
       assert.equal(result, true)
     })

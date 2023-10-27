@@ -261,7 +261,7 @@ describe('#relay-Use-Cases', () => {
       assert.property(thisNode.relayData[0], 'metrics')
 
       // Assert expected values.
-      assert.equal(thisNode.relayData[0].multiaddr, '/p2p/testId')
+      assert.include(thisNode.relayData[0].multiaddr, '/p2p/testId')
       assert.equal(thisNode.relayData[0].connected, true)
       assert.equal(thisNode.relayData[0].ipfsId, 'testId')
       assert.equal(thisNode.relayData[0].isBootstrap, false)
