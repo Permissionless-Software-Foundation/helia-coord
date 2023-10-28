@@ -12,7 +12,6 @@ import ThisNodeUseCases from '../../../lib/use-cases/this-node-use-cases.js'
 import AdapterMock from '../../mocks/adapter-mock.js'
 
 const adapters = new AdapterMock()
-// const mockData = require('../../mocks/peers-mock')
 
 describe('#Use-Cases-Peer', () => {
   let uut
@@ -29,12 +28,6 @@ describe('#Use-Cases-Peer', () => {
       }
     })
     thisNode = await thisNodeUseCases.createSelf({ type: 'node.js' })
-    //
-    // uut = new RelayUseCases({
-    //   adapters,
-    //   controllers: {},
-    //   statusLog: () => {}
-    // })
 
     uut = new PeerUseCases({ adapters, controllers: {} })
   })
@@ -72,13 +65,6 @@ describe('#Use-Cases-Peer', () => {
 
     it('should encrypt a message and add it to the peers OrbitDB', async () => {
       thisNode.peerData.push({ from: 'fakeId' })
-      // thisNode.orbitData.push({
-      //   ipfsId: 'fakeId',
-      //   db: {
-      //     add: () => {
-      //     }
-      //   }
-      // })
 
       // Mock dependencies
       // sandbox.stub(uut.adapters.encryption, 'encryptMsg')

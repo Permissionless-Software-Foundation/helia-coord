@@ -250,12 +250,4 @@ describe('#Controllers-Timer', () => {
       assert.equal(result, true)
     })
   })
-
-  // describe('#monitorBandwidth', () => {
-  //   it('should report bandwidth', async () => {
-  //     const result = await uut.monitorBandwidth(thisNode, useCases)
-
-  //     assert.equal(result, true)
-  //   })
-  // })
 })

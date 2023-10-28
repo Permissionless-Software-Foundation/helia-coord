@@ -25,19 +25,6 @@ describe('#Use-Cases-index.js', () => {
       }
     })
 
-    // it('should throw an error if controllers are not included', () => {
-    //   try {
-    //     uut = new UseCases({ adapters: {} })
-    //
-    //     assert.fail('Unexpected code path')
-    //   } catch (err) {
-    //     assert.include(
-    //       err.message,
-    //       'Must inject instance of controllers when instantiating Use Cases library.'
-    //     )
-    //   }
-    // })
-
     it('should instantiate the use cases library', () => {
       uut = new UseCases({ adapters: {}, statusLog: {} })
 

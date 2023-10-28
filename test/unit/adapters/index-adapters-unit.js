@@ -10,12 +10,6 @@ import SlpWallet from 'minimal-slp-wallet'
 import Adapters from '../../../lib/adapters/index.js'
 import ipfs from '../../mocks/ipfs-mock.js'
 
-// const Adapters = require('../../../lib/adapters')
-// const BCHJS = require('@psf/bch-js')
-// const bchjs = new BCHJS()
-// const ipfs = require('../../mocks/ipfs-mock')
-// const wallet = new SlpWallet()
-
 describe('#Adapters - index.js', () => {
   let uut, wallet
 
