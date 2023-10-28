@@ -36,7 +36,7 @@
     "uuid": "9.0.0"
   },
   "peerDependencies": {
-    "ipfs-http-client": ">= 58.0.0"
+    "libp2p": ">= 0.46.0"
   },
   "exports": {
     ".": {
