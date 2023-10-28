@@ -324,36 +324,6 @@ describe('#relay-Use-Cases', () => {
       assert.equal(result, false)
     })
 
-    // it('should skip multiaddrs with anti-patterns', async () => {
-    //   // Mock test data
-    //   const ipfsId = 'testId'
-    //   const thisNode = {
-    //     relayData: [],
-    //     peerData: [
-    //       {
-    //         data: {
-    //           ipfsId,
-    //           ipfsMultiaddrs: ['/ip4/addr1'],
-    //           isCircuitRelay: true
-    //         }
-    //       }
-    //     ]
-    //   }
-
-    //   // Mock dependencies
-    //   sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
-    //   sandbox
-    //     .stub(uut.adapters.ipfs, 'getPeers')
-    //     .resolves([{ peer: ipfsId, addr: '/p2p-circuit' }])
-
-    //   const result = await uut.addRelay(ipfsId, thisNode)
-
-    //   // console.log(`thisNode: ${JSON.stringify(thisNode, null, 2)}`)
-
-    //   // Function should return false.
-    //   assert.equal(result, false)
-    // })
-
     it('should not connect to peer with p2p-circuit in multiaddr', async () => {
       // Mock test data
       const ipfsId = 'testId'

@@ -46,19 +46,6 @@ describe('#thisNode-Use-Cases', () => {
       }
     })
 
-    // it('should throw an error if controllers are not included', () => {
-    //   try {
-    //     uut = new ThisNodeUseCases({ adapters: {} })
-    //
-    //     assert.fail('Unexpected code path')
-    //   } catch (err) {
-    //     assert.include(
-    //       err.message,
-    //       'Must inject instance of controllers when instantiating thisNode Use Cases library.'
-    //     )
-    //   }
-    // })
-
     it('should instantiate the use cases library', () => {
       uut = new ThisNodeUseCases({
         adapters: {}
