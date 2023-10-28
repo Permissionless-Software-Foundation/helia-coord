@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@chris.troutner/retry-queue": "1.0.8",
+    "@multiformats/multiaddr": "12.1.8",
     "bch-encrypt-lib": "2.1.1",
     "uuid": "9.0.0"
   },
