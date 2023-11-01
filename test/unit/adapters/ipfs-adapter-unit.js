@@ -104,18 +104,18 @@ describe('#Adapter - IPFS', () => {
       sandbox.stub(uut.ipfs.libp2p, 'dial').resolves()
       sandbox.stub(uut, 'multiaddr').returns()
 
-      const result = await uut.connectToPeer('fakeId')
+      const result = await uut.connectToPeer({ multiaddr: 'fakeId' })
 
-      assert.equal(result, true)
+      assert.equal(result.success, true)
     })
 
     it('should return false when issues connecting to peer', async () => {
       // Force an error
       sandbox.stub(uut.ipfs.swarm, 'connect').rejects(new Error('test error'))
 
-      const result = await uut.connectToPeer('fakeId')
+      const result = await uut.connectToPeer({ multiaddr: 'fakeId' })
 
-      assert.equal(result, false)
+      assert.equal(result.success, false)
     })
 
     it('should report connection errors at debugLevel 1', async () => {
@@ -124,9 +124,9 @@ describe('#Adapter - IPFS', () => {
       // Force an error
       sandbox.stub(uut.ipfs.swarm, 'connect').rejects(new Error('test error'))
 
-      const result = await uut.connectToPeer('fakeId')
+      const result = await uut.connectToPeer({ multiaddr: 'fakeId' })
 
-      assert.equal(result, false)
+      assert.equal(result.success, false)
     })
 
     it('should report full errors at debugLevel 2', async () => {
@@ -135,9 +135,9 @@ describe('#Adapter - IPFS', () => {
       // Force an error
       sandbox.stub(uut.ipfs.swarm, 'connect').rejects(new Error('test error'))
 
-      const result = await uut.connectToPeer('fakeId')
+      const result = await uut.connectToPeer({ multiaddr: 'fakeId' })
 
-      assert.equal(result, false)
+      assert.equal(result.success, false)
     })
   })
 
