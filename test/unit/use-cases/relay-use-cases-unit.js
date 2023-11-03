@@ -34,7 +34,8 @@ describe('#relay-Use-Cases', () => {
     uut = new RelayUseCases({
       adapters,
       statusLog: () => {
-      }
+      },
+      v1Relays: ['fake-multiaddr']
     })
   })
 
@@ -432,7 +433,9 @@ describe('#relay-Use-Cases', () => {
                 'ip4/udp/123.456.789.1/addr1',
                 'ip4/quic/123.456.789.1/addr1',
                 'ip4/tcp/123.456.789.1/p2p-circuit/p2p/addr1',
-                '/ip4/addr1'
+                '/ip4/addr1',
+                '/ip4/192.168.0.1/addr1',
+                '/ip4/172.16.0.1/addr1'
               ],
               isCircuitRelay: true
             }
@@ -672,6 +675,33 @@ describe('#relay-Use-Cases', () => {
     it('should catch and throw errors', () => {
       try {
         uut.removeDuplicates()
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'Cannot read')
+      }
+    })
+  })
+
+  describe('#connectToV1Relays', () => {
+    it('should connect to a list of v1 Circuit Relays', async () => {
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves()
+
+      uut.v1Relays = ['fake-multiaddr']
+
+      const result = await uut.connectToV1Relays()
+
+      assert.equal(result, true)
+    })
+
+    it('should catch, report, and throw errors', async () => {
+      try {
+        // Force and error
+        uut.v1Relays = null
+
+        await uut.connectToV1Relays()
 
         assert.fail('Unexpected code path')
       } catch (err) {
