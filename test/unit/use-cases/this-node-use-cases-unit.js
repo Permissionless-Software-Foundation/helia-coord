@@ -217,7 +217,7 @@ describe('#thisNode-Use-Cases', () => {
       // Add a peer that is not in the list of connected peers.
       const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
       uut.thisNode.peerList = [ipfsId]
-      uut.thisNode.peerData = [{ from: ipfsId }]
+      uut.thisNode.peerData = [{ from: ipfsId, data: {} }]
 
       // Add a peer
       await uut.addSubnetPeer(mockData.announceObj)
@@ -241,7 +241,7 @@ describe('#thisNode-Use-Cases', () => {
       // Add a peer that is not in the list of connected peers.
       const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
       uut.thisNode.peerList = [ipfsId]
-      uut.thisNode.peerData = [{ from: ipfsId }]
+      uut.thisNode.peerData = [{ from: ipfsId, data: {} }]
 
       // Add a peer
       await uut.addSubnetPeer(mockData.announceObj)
