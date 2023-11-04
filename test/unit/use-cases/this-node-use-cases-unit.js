@@ -229,6 +229,7 @@ describe('#thisNode-Use-Cases', () => {
       sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
       sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
       sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns([])
 
       // Connect to that peer.
       const result = await uut.refreshPeerConnections()
@@ -255,8 +256,70 @@ describe('#thisNode-Use-Cases', () => {
       sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
         .onCall(0).resolves(false)
         .onCall(1).resolves(true)
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns([])
 
       uut.v1Relays = ['fake-v1-relay']
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should connect directly to circuit relays advertised IP and port', async () => {
+      await uut.createSelf({ type: 'node.js' })
+      // Add a circuit relay peer with advertised IP and port.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{
+        from: ipfsId,
+        data: {
+          isCircuitRelay: true,
+          circuitRelayInfo: {
+            ip4: '123.456.7.8',
+            tcpPort: 4001
+          }
+        }
+      }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
+        .onCall(0).resolves(true)
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns([])
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should connect directly to IPFS peers multiaddr', async () => {
+      await uut.createSelf({ type: 'node.js' })
+      // Add a circuit relay peer with advertised IP and port.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{ from: ipfsId, data: {} }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
+        .onCall(0).resolves(true)
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns(['/ip4/123.45.6.7/p2p/ipfs-id'])
 
       // Connect to that peer.
       const result = await uut.refreshPeerConnections()
