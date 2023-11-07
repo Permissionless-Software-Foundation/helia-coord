@@ -204,7 +204,8 @@ describe('#thisNode-Use-Cases', () => {
       await uut.addSubnetPeer(mockData.announceObj2)
 
       // Mock dependencies
-      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      // sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(['QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsjd'])
 
       // Connect to that peer.
       const result = await uut.refreshPeerConnections()
