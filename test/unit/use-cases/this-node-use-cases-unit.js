@@ -293,7 +293,7 @@ describe('#thisNode-Use-Cases', () => {
       sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
       sandbox.stub(uut, 'isFreshPeer').returns(true)
       sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
-        .onCall(0).resolves(true)
+        .onCall(0).resolves({ success: true })
       sandbox.stub(uut.utils, 'filterMultiaddrs').returns([])
 
       // Connect to that peer.
@@ -319,7 +319,7 @@ describe('#thisNode-Use-Cases', () => {
       sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
       sandbox.stub(uut, 'isFreshPeer').returns(true)
       sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
-        .onCall(0).resolves(true)
+        .onCall(0).resolves({ success: true })
       sandbox.stub(uut.utils, 'filterMultiaddrs').returns(['/ip4/123.45.6.7/p2p/ipfs-id'])
 
       // Connect to that peer.
