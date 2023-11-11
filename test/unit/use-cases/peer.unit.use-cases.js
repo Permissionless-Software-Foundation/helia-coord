@@ -114,7 +114,7 @@ describe('#Use-Cases-Peer', () => {
 
       // Mock dependencies
       sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves([])
-      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves({ status: true })
       thisNode.useCases = {
         relays: {
           sortRelays: () => thisNode.relayData
