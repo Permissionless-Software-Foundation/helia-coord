@@ -30,6 +30,10 @@ class AdaptersMock {
       getPeers: () => {
       },
       connectToPeer: () => {
+        return {
+          status: true,
+          details: null
+        }
       },
       disconnectFromPeer: () => {
       },
