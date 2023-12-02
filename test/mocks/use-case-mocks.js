@@ -15,7 +15,7 @@ class UseCasesMock {
       measureRelays: () => {},
       sortRelays: obj => obj,
       removeDuplicates: () => {},
-      connectToV1Relays: async () => {}
+      connectToBootstrapRelays: async () => {}
     }
     this.pubsub = {}
     this.peer = {}

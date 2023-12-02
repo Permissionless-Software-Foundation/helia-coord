@@ -35,7 +35,7 @@ describe('#relay-Use-Cases', () => {
       adapters,
       statusLog: () => {
       },
-      v1Relays: ['fake-multiaddr']
+      bootstrapRelays: ['fake-multiaddr']
     })
   })
 
@@ -684,14 +684,14 @@ describe('#relay-Use-Cases', () => {
     })
   })
 
-  describe('#connectToV1Relays', () => {
+  describe('#connectToBootstrapRelays', () => {
     it('should connect to a list of v1 Circuit Relays', async () => {
       // Mock dependencies
       sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves()
 
-      uut.v1Relays = ['fake-multiaddr']
+      uut.bootstrapRelays = ['fake-multiaddr']
 
-      const result = await uut.connectToV1Relays()
+      const result = await uut.connectToBootstrapRelays()
 
       assert.equal(result, true)
     })
@@ -699,9 +699,9 @@ describe('#relay-Use-Cases', () => {
     it('should catch, report, and throw errors', async () => {
       try {
         // Force and error
-        uut.v1Relays = null
+        uut.bootstrapRelays = null
 
-        await uut.connectToV1Relays()
+        await uut.connectToBootstrapRelays()
 
         assert.fail('Unexpected code path')
       } catch (err) {
