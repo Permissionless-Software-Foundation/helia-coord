@@ -3,7 +3,7 @@
 */
 
 const config = {
-  DEFAULT_COORDINATION_ROOM: 'psf-ipfs-coordination-002',
+  DEFAULT_COORDINATION_ROOM: 'psf-ipfs-coordination-003',
   BCH_COINJOIN_ROOM: 'bch-coinjoin-001',
 
   // Time between retrying private messages to a peer.
