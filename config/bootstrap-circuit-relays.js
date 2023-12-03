@@ -27,7 +27,7 @@ const BOOTSTRAP_NODE_CRs = [
     name: 'psf1.tokentiger.com',
     multiaddr: '/ip4/137.184.93.145/tcp/8001/p2p/12D3KooWGMEKkdJfyZbwdH9EafZbRTtMn7FnhWPrE4MhRty2763g',
     connected: false,
-    ipfsId: '12D3KooWGZCpD5Ue3CJCBBEKowcuKEgeVKbTM7VMbJ8xm1bqST1j',
+    ipfsId: '12D3KooWGMEKkdJfyZbwdH9EafZbRTtMn7FnhWPrE4MhRty2763g',
     isBootstrap: true
   },
   {
