@@ -80,6 +80,12 @@ describe('#relay-Use-Cases', () => {
           .stub(uut.adapters.ipfs, 'connectToPeer')
           .rejects(new Error('test error'))
 
+        uut.bootstrapCircuitRelays = {
+          node: [{
+            multiaddr: 'fake-multiaddr'
+          }]
+        }
+
         await uut.initializeRelays(thisNode)
 
         assert.fail('Unexpected code path')

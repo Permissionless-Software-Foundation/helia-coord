@@ -23,20 +23,20 @@ const BOOTSTRAP_BROWSER_CRs = [
 ]
 
 const BOOTSTRAP_NODE_CRs = [
-  {
-    name: 'psf1.tokentiger.com',
-    multiaddr: '/ip4/137.184.93.145/tcp/8001/p2p/12D3KooWGMEKkdJfyZbwdH9EafZbRTtMn7FnhWPrE4MhRty2763g',
-    connected: false,
-    ipfsId: '12D3KooWGMEKkdJfyZbwdH9EafZbRTtMn7FnhWPrE4MhRty2763g',
-    isBootstrap: true
-  },
-  {
-    name: 'cr1.psfoundatoin.info',
-    multiaddr: '/ip4/78.46.129.7/tcp/4001/p2p/12D3KooWFQ11GQ5NubsJGhYZ4X3wrAGimLevxfm6HPExCrMYhpSL',
-    connected: false,
-    ipfsId: '12D3KooWFQ11GQ5NubsJGhYZ4X3wrAGimLevxfm6HPExCrMYhpSL',
-    isBootstrap: true
-  }
+  // {
+  //   name: 'psf1.tokentiger.com',
+  //   multiaddr: '/ip4/137.184.93.145/tcp/8001/p2p/12D3KooWGMEKkdJfyZbwdH9EafZbRTtMn7FnhWPrE4MhRty2763g',
+  //   connected: false,
+  //   ipfsId: '12D3KooWGMEKkdJfyZbwdH9EafZbRTtMn7FnhWPrE4MhRty2763g',
+  //   isBootstrap: true
+  // },
+  // {
+  //   name: 'cr1.psfoundatoin.info',
+  //   multiaddr: '/ip4/78.46.129.7/tcp/4001/p2p/12D3KooWFQ11GQ5NubsJGhYZ4X3wrAGimLevxfm6HPExCrMYhpSL',
+  //   connected: false,
+  //   ipfsId: '12D3KooWFQ11GQ5NubsJGhYZ4X3wrAGimLevxfm6HPExCrMYhpSL',
+  //   isBootstrap: true
+  // }
 ]
 
 const bootstrapCircuitRelays = {
