@@ -103,7 +103,8 @@ describe('#relay-Use-Cases', () => {
         browser: [],
         node: [{
           ipfsId: '123'
-        }]
+        }],
+        recommendedPeers: []
       }
       sandbox.stub(uut.adapters.gist, 'getCRList').resolves(data)
       sandbox.stub(uut, 'removeDuplicates').resolves()
@@ -126,7 +127,8 @@ describe('#relay-Use-Cases', () => {
         browser: [{
           ipfsId: 'fake-id'
         }],
-        node: []
+        node: [],
+        recommendedPeers: []
       }
       sandbox.stub(uut.adapters.gist, 'getCRList').resolves(data)
       sandbox.stub(uut, 'removeDuplicates').resolves()
