@@ -1,7 +1,25 @@
 # Theory of Operation
 
 This document provides a high-level overview of what the helia-coord library does.
-Helia-coord is middleware that controls a Helia IPFS node. It is used to form an on-the-fly, self-healing mesh network of other IPFS nodes. The nodes communicate over *pubsub channels*, and state is managed by *interval timers*.
+Helia-coord is middleware that controls a Helia IPFS node. It is used to form an on-the-fly, self-healing mesh network of other IPFS nodes. It tracks its connection to other nodes on the network with *entities*. The nodes communicate over *[pubsub channels](https://docs.libp2p.io/concepts/pubsub/overview/)*, and state is managed by *interval timers*.
+
+## Entities
+
+There are three main entities tracked by helia-coord:
+- *thisNode* - represents the IPFS node controlled by helia-coord.
+- *peers* - other IPFS peers on the network tracked by helia-coord.
+- *relays* - are special *peers* that can establish a webRTC [Circuit Relay](https://docs.libp2p.io/concepts/nat/circuit-relay/) connection between nodes that can not talk to one another directly.
+
+These entities are all stateless, meaning that that the node starts knowing nothing about itself or the other peers on the network. The entities are created at run-time. They are created and information is added to them as the node discovers more about itself and the other peers on the network over time.
+
+### thisNode
+The *thisNode* entity represents the Helia IPFS node controlled by helia-coord. There is only *one* instance of *thisNode*.
+
+### peers
+A peer entity represents other IPFS nodes on the network that are also running the helia-coord library. These are entities that the *thisNode* entity wants to track and maintain connections to.
+
+### relays
+Relay entities are peers, but not all peers are relays. Relays are a special peers with a public IP address, and run the [v2 Circuit Relay protocol](https://docs.libp2p.io/concepts/nat/circuit-relay/). This protocol allows normal *peer* entities to connect to one another if they don't have a publicly accessible IP address and port.
 
 ## Pubsub Channels
 
