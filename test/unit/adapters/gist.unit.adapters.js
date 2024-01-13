@@ -23,24 +23,24 @@ describe('#Adapter-Gist', () => {
   afterEach(() => sandbox.restore())
 
   describe('#getCRList', () => {
-    // it('should get data from GitHub', async () => {
-    //   // Mock network dependencies
-    //   sandbox.stub(uut.axios, 'get').resolves({
-    //     data: {
-    //       files: {
-    //         'psf-public-circuit-relays.json': {
-    //           content: JSON.stringify({ key: 'value' })
-    //         }
-    //       }
-    //     }
-    //   })
-    //
-    //   const result = await uut.getCRList()
-    //   // console.log('result: ', result)
-    //
-    //   assert.property(result, 'key')
-    //   assert.equal(result.key, 'value')
-    // })
+    it('should get data from GitHub', async () => {
+      // Mock network dependencies
+      sandbox.stub(uut.axios, 'get').resolves({
+        data: {
+          files: {
+            'psf-helia-public-circuit-relays.json': {
+              content: JSON.stringify({ key: 'value' })
+            }
+          }
+        }
+      })
+
+      const result = await uut.getCRList()
+      // console.log('result: ', result)
+
+      assert.property(result, 'key')
+      assert.equal(result.key, 'value')
+    })
 
     it('should catch and throw errors', async () => {
       try {
