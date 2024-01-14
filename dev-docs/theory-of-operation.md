@@ -9,6 +9,7 @@ There are three main entities tracked by helia-coord:
 - *thisNode* - represents the IPFS node controlled by helia-coord.
 - *peers* - are other IPFS peers on the network tracked by helia-coord.
 - *relays* - are special *peers* that can establish a webRTC [Circuit Relay](https://docs.libp2p.io/concepts/nat/circuit-relay/) connection between nodes that can not talk to one another directly.
+- *pubsub* channels - are communication channels that nodes subscribe to in order to communicate.
 
 These entities are all stateless, meaning that that the node starts by knowing nothing about itself or the other peers on the network. The entities are created at run-time. They are created and information is added to them as the node discovers more about itself and the other peers on the network over time.
 

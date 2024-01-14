@@ -34,6 +34,7 @@ class IpfsCoord {
     // 0 = no debug information.
     // 1 = status logs
     // 2 = verbose errors about peer connections
+    // 3 = everything
     this.debugLevel = parseInt(localConfig.debugLevel)
     if (!this.debugLevel) this.debugLevel = 0
     localConfig.debugLevel = this.debugLevel
@@ -80,7 +81,7 @@ class IpfsCoord {
     await this.adapters.ipfs.start()
 
     // Create an instance of the 'self' which represents this IPFS node, BCH
-    // wallet, and other things that make up this ipfs-coord powered IPFS node.
+    // wallet, and other things that make up this helia-coord powered IPFS node.
     this.thisNode = await this.useCases.thisNode.createSelf({ type: this.type })
     // console.log('thisNode: ', this.thisNode)
 
