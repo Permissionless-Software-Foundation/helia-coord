@@ -56,46 +56,6 @@ describe('#relay-Use-Cases', () => {
     })
   })
 
-  describe('#initializeRelays', () => {
-    it('should initialize the node.js circuit relays', async () => {
-      const result = await uut.initializeRelays(thisNode)
-
-      // assert.isOk(true, 'Not throwing an error is a pass')
-      assert.equal(result, true)
-    })
-
-    it('should initialize the browser circuit relays', async () => {
-      thisNode.type = 'browser'
-
-      const result = await uut.initializeRelays(thisNode)
-
-      // assert.isOk(true, 'Not throwing an error is a pass')
-      assert.equal(result, true)
-    })
-
-    it('should catch and throw an error', async () => {
-      try {
-        // Force an error
-        sandbox
-          .stub(uut.adapters.ipfs, 'connectToPeer')
-          .rejects(new Error('test error'))
-
-        uut.bootstrapCircuitRelays = {
-          node: [{
-            multiaddr: 'fake-multiaddr'
-          }]
-        }
-
-        await uut.initializeRelays(thisNode)
-
-        assert.fail('Unexpected code path')
-      } catch (err) {
-        // console.log(err)
-        assert.include(err.message, 'test error')
-      }
-    })
-  })
-
   describe('#getCRGist', () => {
     it('should load list from GitHub and connect to node.js circuit relays', async () => {
       // Mock dependencies

@@ -123,7 +123,6 @@ describe('#ipfs-coord - index.js', () => {
       // Mock the dependencies.
       sandbox.stub(uut.adapters.ipfs, 'start').resolves({})
       sandbox.stub(uut.useCases.thisNode, 'createSelf').resolves({})
-      sandbox.stub(uut.useCases.relays, 'initializeRelays').resolves({})
       sandbox.stub(uut.useCases.pubsub, 'initializePubsub').resolves({})
       sandbox.stub(uut.controllers.timer, 'startTimers').resolves({})
       sandbox.stub(uut, '_initializeConnections').resolves({})
@@ -137,7 +136,6 @@ describe('#ipfs-coord - index.js', () => {
   describe('#_initializeConnections', () => {
     it('should kick-off initial connections', async () => {
       // Mock dependencies
-      sandbox.stub(uut.useCases.relays, 'initializeRelays').resolves()
       sandbox.stub(uut.useCases.relays, 'getCRGist').resolves()
       sandbox.stub(uut.useCases.thisNode, 'refreshPeerConnections').resolves()
 
@@ -149,7 +147,7 @@ describe('#ipfs-coord - index.js', () => {
     it('should return falses on error', async () => {
       // Force and error
       sandbox
-        .stub(uut.useCases.relays, 'initializeRelays')
+        .stub(uut.useCases.relays, 'getCRGist')
         .rejects(new Error('test error'))
 
       const result = await uut._initializeConnections()
