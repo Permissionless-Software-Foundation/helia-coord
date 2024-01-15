@@ -58,7 +58,11 @@ describe('#thisNode-Use-Cases', () => {
 
   describe('#createSelf', () => {
     it('should create a thisNode entity', async () => {
-      uut = new ThisNodeUseCases({ adapters, statusLog: {} })
+
+      uut = new ThisNodeUseCases({ adapters, statusLog: {}, tcpPort: 4001 })
+
+      // Mock dependencies
+      sandbox.stub(uut, 'publicIp').resolves('123.456.789.10')
 
       const result = await uut.createSelf({ type: 'node.js' })
       // console.log('result: ', result)
@@ -128,6 +132,35 @@ describe('#thisNode-Use-Cases', () => {
 
       // peerData array should only have one peer.
       assert.equal(uut.thisNode.peerData.length, 1)
+    })
+
+    it('should return false if existing peer can not be found', async () => {
+      // Mock dependencies
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+
+      const announceObj = {
+        from: 'peerId',
+        data: {
+          orbitdb: 'orbitdbId'
+        }
+      }
+
+      await uut.createSelf({ type: 'node.js' })
+
+      // Add the new peer
+      await uut.addSubnetPeer(announceObj)
+
+      // Force peer to not be found.
+      uut.thisNode.peerData = []
+
+      // Simulate a second announcement object.
+      const result = await uut.addSubnetPeer(announceObj)
+      // console.log('result: ', result)
+
+      assert.equal(result, false)
+
+      // peerData array should only have one peer.
+      // assert.equal(uut.thisNode.peerData.length, 1)
     })
 
     it('should not update an existing peer if broadcast message is older the current one', async () => {
