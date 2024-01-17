@@ -58,7 +58,6 @@ describe('#thisNode-Use-Cases', () => {
 
   describe('#createSelf', () => {
     it('should create a thisNode entity', async () => {
-
       uut = new ThisNodeUseCases({ adapters, statusLog: {}, tcpPort: 4001 })
 
       // Mock dependencies
@@ -271,35 +270,6 @@ describe('#thisNode-Use-Cases', () => {
       assert.equal(result, true)
     })
 
-    it('should connect over v1 Circuit Relay if v2 Circuit Relays fail', async () => {
-      await uut.createSelf({ type: 'node.js' })
-      // Add a peer that is not in the list of connected peers.
-      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
-      uut.thisNode.peerList = [ipfsId]
-      uut.thisNode.peerData = [{ from: ipfsId, data: {} }]
-
-      // Add a peer
-      await uut.addSubnetPeer(mockData.announceObj)
-
-      // Force circuit relay to be used.
-      uut.thisNode.relayData = mockData.mockRelayData
-
-      // Mock dependencies
-      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
-      sandbox.stub(uut, 'isFreshPeer').returns(true)
-      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
-        .onCall(0).resolves(false)
-        .onCall(1).resolves(true)
-      sandbox.stub(uut.utils, 'filterMultiaddrs').returns([])
-
-      uut.v1Relays = ['fake-v1-relay']
-
-      // Connect to that peer.
-      const result = await uut.refreshPeerConnections()
-
-      assert.equal(result, true)
-    })
-
     it('should connect directly to circuit relays advertised IP and port', async () => {
       await uut.createSelf({ type: 'node.js' })
       // Add a circuit relay peer with advertised IP and port.
@@ -354,6 +324,63 @@ describe('#thisNode-Use-Cases', () => {
       sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
         .onCall(0).resolves({ success: true })
       sandbox.stub(uut.utils, 'filterMultiaddrs').returns(['/ip4/123.45.6.7/p2p/ipfs-id'])
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should report connection errors when connecting directly to IPFS peers multiaddr', async () => {
+      await uut.createSelf({ type: 'node.js' })
+      // Add a circuit relay peer with advertised IP and port.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{ from: ipfsId, data: {} }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
+        .onCall(0).resolves({ success: false })
+        .onCall(1).resolves({ sucdess: true })
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns(['/ip4/123.45.6.7/p2p/ipfs-id'])
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should connect through v2 Circuit Relay', async () => {
+      await uut.createSelf({ type: 'node.js' })
+      // Add a circuit relay peer with advertised IP and port.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{ from: ipfsId, data: {} }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
+        .onCall(0).resolves({ success: true })
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns([])
+      sandbox.stub(uut.thisNode.useCases.relays, 'sortRelays').returns([{
+        multiaddr: '/ip4/123.45.6.7/p2p/ipfs-id',
+        connected: true
+      }])
 
       // Connect to that peer.
       const result = await uut.refreshPeerConnections()
