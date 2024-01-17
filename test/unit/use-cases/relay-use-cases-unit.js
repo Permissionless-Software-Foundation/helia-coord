@@ -501,7 +501,7 @@ describe('#relay-Use-Cases', () => {
       }
 
       // Mock dependencies
-      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves({ status: true })
       sandbox
         .stub(uut.adapters.ipfs, 'getPeers')
         .resolves([{ peer: ipfsId, addr: '/ip4/addr1' }])
