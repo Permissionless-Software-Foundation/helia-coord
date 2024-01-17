@@ -24,7 +24,8 @@ class AdaptersMock {
               getTopics: () => [],
               addEventListener: () => {}
             }
-          }
+          },
+          getConnections: async () => {}
         }
       },
       getPeers: () => {
