@@ -35,8 +35,6 @@ describe('#relay-Use-Cases', () => {
 
     uut = new RelayUseCases({
       adapters,
-      statusLog: () => {
-      },
       bootstrapRelays: ['fake-multiaddr']
     })
 

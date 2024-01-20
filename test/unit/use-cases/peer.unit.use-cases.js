@@ -10,6 +10,7 @@ import sinon from 'sinon'
 import PeerUseCases from '../../../lib/use-cases/peer-use-cases.js'
 import ThisNodeUseCases from '../../../lib/use-cases/this-node-use-cases.js'
 import AdapterMock from '../../mocks/adapter-mock.js'
+import RelayUseCases from '../../../lib/use-cases/relay-use-cases.js'
 
 const adapters = new AdapterMock()
 
@@ -29,7 +30,12 @@ describe('#Use-Cases-Peer', () => {
     })
     thisNode = await thisNodeUseCases.createSelf({ type: 'node.js' })
 
-    uut = new PeerUseCases({ adapters, controllers: {} })
+    const relayUseCases = new RelayUseCases({
+      adapters,
+      bootstrapRelays: ['fake-multiaddr']
+    })
+
+    uut = new PeerUseCases({ adapters, relayUseCases })
   })
 
   afterEach(() => sandbox.restore())
@@ -44,6 +50,19 @@ describe('#Use-Cases-Peer', () => {
         assert.include(
           err.message,
           'Must inject instance of adapters when instantiating Peer Use Cases library.'
+        )
+      }
+    })
+
+    it('should throw an error if relay use cases are not included', () => {
+      try {
+        uut = new PeerUseCases({ adapters })
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(
+          err.message,
+          'Must inject instance of Relay Use Cases when instantiating Peer Use Cases library.'
         )
       }
     })

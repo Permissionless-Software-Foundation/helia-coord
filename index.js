@@ -85,11 +85,15 @@ class IpfsCoord {
     this.thisNode = await this.useCases.thisNode.createSelf({ type: this.type })
     // console.log('thisNode: ', this.thisNode)
 
+    // Pass instance of thisNode to the other use-case libraries.
+    this.useCases.peer.updateThisNode(this.thisNode)
+
     // Subscribe to Pubsub Channels
-    await this.useCases.pubsub.initializePubsub(this.thisNode)
+    // await this.useCases.pubsub.initializePubsub(this.thisNode)
+    await this.controllers.pubsub.initializePubsub()
 
     // Start timer-based controllers.
-    await this.controllers.timer.startTimers(this.thisNode, this.useCases)
+    await this.controllers.timer.startTimers(this.thisNode)
 
     // Kick-off initial connection to Circuit Relays and Peers.
     // Note: Deliberatly *not* using await here, so that it doesn't block startup
