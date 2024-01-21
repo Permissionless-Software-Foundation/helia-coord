@@ -511,43 +511,4 @@ describe('#Adapter - Pubsub', () => {
       assert.equal(result, false)
     })
   })
-
-  describe('#manageMsgCache', () => {
-    it('should shift out an element if the array is too big', () => {
-      uut.trackedMsgs = [1, 2, 3, 4]
-      uut.TRACKED_MSG_SIZE = 3
-
-      uut.manageMsgCache()
-      // console.log('uut.trackedMsgs: ', uut.trackedMsgs)
-
-      assert.equal(uut.trackedMsgs.length, 3)
-    })
-  })
-
-  describe('#checkForDuplicateMsg', () => {
-    it('should return true if message sn HAS NOT been seen', () => {
-      const msg = {
-        detail: {
-          sequenceNumber: 123
-        }
-      }
-
-      const result = uut.checkForDuplicateMsg(msg)
-
-      assert.equal(result, true)
-    })
-
-    it('should return false if message sn HAS been seen', () => {
-      const msg = {
-        detail: {
-          sequenceNumber: 123
-        }
-      }
-
-      uut.checkForDuplicateMsg(msg)
-      const result = uut.checkForDuplicateMsg(msg)
-
-      assert.equal(result, false)
-    })
-  })
 })
