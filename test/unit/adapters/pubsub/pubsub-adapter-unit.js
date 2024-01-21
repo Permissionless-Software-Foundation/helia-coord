@@ -511,4 +511,31 @@ describe('#Adapter - Pubsub', () => {
       assert.equal(result, false)
     })
   })
+
+  describe('#subscribeToCoordChannel', () => {
+    it('should subscribe to the coordination channel', async () => {
+      const inObj = {
+        chanName: globalConfig.DEFAULT_COORDINATION_ROOM,
+        handler: () => {}
+      }
+
+      const result = await uut.subscribeToCoordChannel(inObj)
+
+      assert.equal(result, true)
+    })
+
+    it('should catch, report, and throw errors', async () => {
+      try {
+        // Force an error
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').throws(new Error('test error'))
+
+        await uut.subscribeToCoordChannel()
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        // console.log('err: ', err)
+        assert.include(err.message, 'test error')
+      }
+    })
+  })
 })

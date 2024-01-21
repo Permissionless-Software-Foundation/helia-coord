@@ -17,8 +17,12 @@ class UseCasesMock {
       removeDuplicates: () => {},
       connectToBootstrapRelays: async () => {}
     }
-    this.pubsub = {}
-    this.peer = {}
+    this.pubsub = {
+      parseCoordPubsub: async () => {}
+    }
+    this.peer = {
+      addSubnetPeer: async () => {}
+    }
   }
 }
 

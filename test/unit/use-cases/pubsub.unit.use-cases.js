@@ -89,6 +89,7 @@ describe('#pubsub-Use-Cases', () => {
     })
   })
 
+  // TODO: Remove. This code has been moved to pubsub-controller.
   describe('#initializePubsub', () => {
     it('should subscribe to a node', async () => {
       await uut.initializePubsub('fakeNode')

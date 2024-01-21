@@ -65,6 +65,7 @@ class AdaptersMock {
     this.pubsub = {
       subscribeToPubsubChannel: () => {
       },
+      subscribeToCoordChannel: async () => {},
       publishToPubsubChannel: () => {
       },
       messaging: {
