@@ -65,32 +65,6 @@ describe('#Pubsub-Controller', () => {
     })
   })
 
-  describe('#initializePubsub', () => {
-    it('should subscribe to a node', async () => {
-      sandbox.stub(uut.adapters.pubsub, 'subscribeToCoordChannel').resolves()
-
-      const result = await uut.initializePubsub()
-
-      assert.equal(result, true)
-    })
-
-    it('should catch and throw an error', async () => {
-      try {
-        // Force an error
-        sandbox
-          .stub(uut.adapters.pubsub, 'subscribeToCoordChannel')
-          .rejects(new Error('test error'))
-
-        await uut.initializePubsub()
-
-        assert.fail('Unexpected code path')
-      } catch (err) {
-        // console.log(err)
-        assert.include(err.message, 'test error')
-      }
-    })
-  })
-
   describe('#coordChanHandler', () => {
     it('should return false if message is for channel other than coordination channel', async () => {
       const msg = {

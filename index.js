@@ -87,10 +87,11 @@ class IpfsCoord {
 
     // Pass instance of thisNode to the other use-case libraries.
     this.useCases.peer.updateThisNode(this.thisNode)
+    this.useCases.pubsub.updateThisNode(this.thisNode)
 
     // Subscribe to Pubsub Channels
     // await this.useCases.pubsub.initializePubsub(this.thisNode)
-    await this.controllers.pubsub.initializePubsub()
+    await this.useCases.pubsub.initializePubsub({ controllers: this.controllers })
 
     // Start timer-based controllers.
     await this.controllers.timer.startTimers(this.thisNode)

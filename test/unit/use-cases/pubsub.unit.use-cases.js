@@ -89,30 +89,61 @@ describe('#pubsub-Use-Cases', () => {
     })
   })
 
-  // TODO: Remove. This code has been moved to pubsub-controller.
   describe('#initializePubsub', () => {
     it('should subscribe to a node', async () => {
-      await uut.initializePubsub('fakeNode')
+      sandbox.stub(uut.adapters.pubsub, 'subscribeToCoordChannel').resolves()
 
-      assert.isOk(true, 'No throwing an error is a pass')
+      uut.updateThisNode({
+        pubsubChannels: []
+      })
+
+      const controllers = {
+        pubsub: {
+          coordChanHandler: () => {}
+        }
+      }
+
+      const result = await uut.initializePubsub({ controllers })
+
+      assert.equal(result, true)
     })
 
     it('should catch and throw an error', async () => {
       try {
-        // Force an error
-        sandbox
-          .stub(uut.adapters.pubsub, 'subscribeToPubsubChannel')
-          .rejects(new Error('test error'))
-
-        await uut.initializePubsub('fakeNode')
+        await uut.initializePubsub()
 
         assert.fail('Unexpected code path')
       } catch (err) {
         // console.log(err)
-        assert.include(err.message, 'test error')
+        assert.include(err.message, 'Instance of thisNode object')
       }
     })
   })
+
+  // TODO: Remove. This code has been moved to pubsub-controller.
+  // describe('#initializePubsub', () => {
+  //   it('should subscribe to a node', async () => {
+  //     await uut.initializePubsub('fakeNode')
+  //
+  //     assert.isOk(true, 'No throwing an error is a pass')
+  //   })
+  //
+  //   it('should catch and throw an error', async () => {
+  //     try {
+  //       // Force an error
+  //       sandbox
+  //         .stub(uut.adapters.pubsub, 'subscribeToPubsubChannel')
+  //         .rejects(new Error('test error'))
+  //
+  //       await uut.initializePubsub('fakeNode')
+  //
+  //       assert.fail('Unexpected code path')
+  //     } catch (err) {
+  //       // console.log(err)
+  //       assert.include(err.message, 'test error')
+  //     }
+  //   })
+  // })
 
   describe('#checkForDuplicateMsg', () => {
     it('should return true if message sn HAS NOT been seen', () => {

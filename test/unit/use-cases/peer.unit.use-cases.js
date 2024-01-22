@@ -196,7 +196,11 @@ describe('#Use-Cases-Peer', () => {
 
       const announceObj = {
         from: 'peerId',
-        data: {}
+        data: {
+          jsonLd: {
+            name: 'test'
+          }
+        }
       }
 
       uut.updateThisNode(thisNode)
@@ -214,6 +218,9 @@ describe('#Use-Cases-Peer', () => {
       const announceObj = {
         from: 'peerId',
         data: {
+          jsonLd: {
+            name: 'test'
+          },
           isCircuitRelay: true
         }
       }
@@ -232,6 +239,9 @@ describe('#Use-Cases-Peer', () => {
       const announceObj = {
         from: 'peerId',
         data: {
+          jsonLd: {
+            name: 'test'
+          },
           orbitdb: 'orbitdbId'
         }
       }
@@ -258,6 +268,9 @@ describe('#Use-Cases-Peer', () => {
       const announceObj = {
         from: 'peerId',
         data: {
+          jsonLd: {
+            name: 'test'
+          },
           orbitdb: 'orbitdbId'
         }
       }
@@ -287,6 +300,9 @@ describe('#Use-Cases-Peer', () => {
       const announceObj1 = {
         from: 'peerId',
         data: {
+          jsonLd: {
+            name: 'test'
+          },
           orbitdb: 'orbitdbId',
           broadcastedAt: new Date('10/07/2023')
         }
@@ -295,6 +311,9 @@ describe('#Use-Cases-Peer', () => {
       const announceObj2 = {
         from: 'peerId',
         data: {
+          jsonLd: {
+            name: 'test'
+          },
           orbitdb: 'orbitdbId',
           broadcastedAt: new Date('10/05/2023')
         }

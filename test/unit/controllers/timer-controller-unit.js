@@ -119,7 +119,11 @@ describe('#Controllers-Timer', () => {
       sandbox.stub(uut, 'searchForRelays').resolves()
       sandbox.stub(uut, 'listPubsubChannels').resolves()
 
-      uut.startTimers()
+      const thisNode = {
+        peerData: []
+      }
+
+      uut.startTimers(thisNode)
       clock.tick(200000)
 
       assert.isOk(true)
