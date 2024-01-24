@@ -21,7 +21,8 @@ class UseCasesMock {
       parseCoordPubsub: async () => {}
     }
     this.peer = {
-      addSubnetPeer: async () => {}
+      addSubnetPeer: async () => {},
+      refreshPeerConnections: async () => {}
     }
   }
 }

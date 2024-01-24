@@ -193,7 +193,7 @@ describe('#Controllers-Timer', () => {
     it('should catch and report an error', async () => {
       // Force an error
       sandbox
-        .stub(useCases.thisNode, 'refreshPeerConnections')
+        .stub(useCases.peer, 'refreshPeerConnections')
         .throws(new Error('test error'))
 
       const result = await uut.managePeers(thisNode, useCases)
