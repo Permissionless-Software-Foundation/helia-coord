@@ -137,7 +137,7 @@ describe('#ipfs-coord - index.js', () => {
     it('should kick-off initial connections', async () => {
       // Mock dependencies
       sandbox.stub(uut.useCases.relays, 'getCRGist').resolves()
-      sandbox.stub(uut.useCases.thisNode, 'refreshPeerConnections').resolves()
+      sandbox.stub(uut.useCases.peer, 'refreshPeerConnections').resolves()
 
       const result = await uut._initializeConnections()
 

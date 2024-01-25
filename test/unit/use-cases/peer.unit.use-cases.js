@@ -11,6 +11,7 @@ import PeerUseCases from '../../../lib/use-cases/peer-use-cases.js'
 import ThisNodeUseCases from '../../../lib/use-cases/this-node-use-cases.js'
 import AdapterMock from '../../mocks/adapter-mock.js'
 import RelayUseCases from '../../../lib/use-cases/relay-use-cases.js'
+import mockData from '../../mocks/peers-mock.js'
 
 const adapters = new AdapterMock()
 
@@ -36,6 +37,7 @@ describe('#Use-Cases-Peer', () => {
     })
 
     uut = new PeerUseCases({ adapters, relayUseCases })
+    uut.updateThisNode(thisNode)
   })
 
   afterEach(() => sandbox.restore())
@@ -396,6 +398,226 @@ describe('#Use-Cases-Peer', () => {
       const result = uut.isFreshPeer(announceObj)
 
       assert.equal(result, true)
+    })
+  })
+
+  describe('#refreshPeerConnections', () => {
+    it('should execute with no connected peers', async () => {
+      // await uut.createSelf({ type: 'node.js' })
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+
+      // Connect to that peer.
+      await uut.refreshPeerConnections()
+    })
+
+    it('should skip if peer is already connected', async () => {
+      // await uut.createSelf({ type: 'node.js' })
+      // Add a peer that is already in the list of connected peers.
+      uut.thisNode.peerList = ['QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsjd']
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj2)
+
+      // Mock dependencies
+      // sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(['QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsjd'])
+      sandbox.stub(uut, 'updatePeerConnectionInfo').returns()
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should refresh a connection', async () => {
+      // await uut.createSelf({ type: 'node.js' })
+      // Add a peer that is not in the list of connected peers.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{ from: ipfsId, data: {} }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns([])
+      sandbox.stub(uut.relayUseCases, 'sortRelays').returns(mockData.mockRelayData)
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should connect directly to circuit relays advertised IP and port', async () => {
+      // Add a circuit relay peer with advertised IP and port.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{
+        from: ipfsId,
+        data: {
+          isCircuitRelay: true,
+          circuitRelayInfo: {
+            ip4: '123.456.7.8',
+            tcpPort: 4001
+          }
+        }
+      }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
+        .onCall(0).resolves({ success: true })
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns([])
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should connect directly to IPFS peers multiaddr', async () => {
+      // Add a circuit relay peer with advertised IP and port.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{ from: ipfsId, data: {} }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
+        .onCall(0).resolves({ success: true })
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns(['/ip4/123.45.6.7/p2p/ipfs-id'])
+      sandbox.stub(uut, 'updatePeerConnectionInfo').returns()
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should report connection errors when connecting directly to IPFS peers multiaddr', async () => {
+      // Add a circuit relay peer with advertised IP and port.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{ from: ipfsId, data: {} }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
+        .onCall(0).resolves({ success: false })
+        .onCall(1).resolves({ sucdess: true })
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns(['/ip4/123.45.6.7/p2p/ipfs-id'])
+      sandbox.stub(uut.relayUseCases, 'sortRelays').returns(mockData.mockRelayData)
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should connect through v2 Circuit Relay', async () => {
+      // Add a circuit relay peer with advertised IP and port.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{ from: ipfsId, data: {} }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
+        .onCall(0).resolves({ success: true })
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns([])
+      sandbox.stub(uut.relayUseCases, 'sortRelays').returns([{
+        multiaddr: '/ip4/123.45.6.7/p2p/ipfs-id',
+        connected: true
+      }])
+      sandbox.stub(uut, 'updatePeerConnectionInfo').returns()
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should skip if peer is stale', async () => {
+      // Add a peer that is not in the list of connected peers.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{ from: ipfsId }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
+      sandbox.stub(uut, 'isFreshPeer').returns(false)
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+
+    it('should catch and throw an error', async () => {
+      try {
+        // Add a peer
+        await uut.addSubnetPeer(mockData.announceObj)
+
+        // Force error
+        sandbox
+          .stub(uut.adapters.ipfs, 'getPeers')
+          .rejects(new Error('test error'))
+
+        // Connect to that peer.
+        await uut.refreshPeerConnections()
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        // console.log('err: ', err)
+        assert.include(err.message, 'test error')
+      }
     })
   })
 })
