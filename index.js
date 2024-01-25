@@ -86,7 +86,7 @@ class IpfsCoord {
     // console.log('thisNode: ', this.thisNode)
 
     // Pass instance of thisNode to the other use-case libraries.
-    this.useCases.peer.updateThisNode(this.thisNode)
+    this.useCases.peer.updateThisNode({ thisNode: this.thisNode, peerUseCases: this.useCases.peer })
     this.useCases.pubsub.updateThisNode(this.thisNode)
 
     // Subscribe to Pubsub Channels
