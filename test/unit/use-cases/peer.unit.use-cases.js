@@ -704,4 +704,30 @@ describe('#Use-Cases-Peer', () => {
       }
     })
   })
+
+  describe('#queryAbout', () => {
+    it('should return true after peer responds to RPC', async () => {
+      // Mock dependencies
+      sandbox.stub(uut, 'sendRPC').resolves(true)
+
+      const result = await uut.queryAbout()
+      assert.equal(result, true)
+    })
+
+    it('should return false if peer never responds to RPC', async () => {
+      // Mock dependencies
+      sandbox.stub(uut, 'sendRPC').resolves(false)
+
+      const result = await uut.queryAbout()
+      assert.equal(result, false)
+    })
+
+    it('should return false when there is an error', async () => {
+      // Mock dependencies
+      sandbox.stub(uut, 'sendRPC').rejects(new Error('test error'))
+
+      const result = await uut.queryAbout()
+      assert.equal(result, false)
+    })
+  })
 })
