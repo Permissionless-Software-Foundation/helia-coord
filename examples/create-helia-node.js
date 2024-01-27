@@ -92,7 +92,9 @@ class CreateHeliaNode {
             '/ip4/127.0.0.1/tcp/0',
             '/ip4/0.0.0.0/tcp/4001',
             '/ip4/0.0.0.0/tcp/4003/ws',
-            '/webrtc'
+            '/webrtc',
+            '/ip4/137.184.93.145/tcp/8001/p2p/12D3KooW9xkzLAP8tH78PBHtnDrtEYKj2YhgBsAr5RWVTr7nvFGG/p2p-circuit',
+            '/ip4/78.46.129.7/tcp/4001/p2p/12D3KooWQBmne83srRTwpmhxE7ysKXgoHt8tteWtr1e6iZSAUuyd/p2p-circuit'
           ]
         },
         transports: [
