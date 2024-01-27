@@ -95,7 +95,8 @@ class AdaptersMock {
       about: {
         queryAbout: () => {
         }
-      }
+      },
+      injectMetricsHandler: () => {}
     }
 
     this.encryption = {

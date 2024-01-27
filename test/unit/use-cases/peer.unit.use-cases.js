@@ -37,7 +37,7 @@ describe('#Use-Cases-Peer', () => {
     })
 
     uut = new PeerUseCases({ adapters, relayUseCases })
-    uut.updateThisNode(thisNode)
+    uut.updateThisNode({ thisNode })
   })
 
   afterEach(() => sandbox.restore())
@@ -205,7 +205,7 @@ describe('#Use-Cases-Peer', () => {
         }
       }
 
-      uut.updateThisNode(thisNode)
+      uut.updateThisNode({ thisNode })
       const result = await uut.addSubnetPeer(announceObj)
       // console.log('result: ', result)
 
@@ -227,7 +227,7 @@ describe('#Use-Cases-Peer', () => {
         }
       }
 
-      uut.updateThisNode(thisNode)
+      uut.updateThisNode({ thisNode })
       const result = await uut.addSubnetPeer(announceObj)
       // console.log('result: ', result)
 
@@ -248,7 +248,7 @@ describe('#Use-Cases-Peer', () => {
         }
       }
 
-      uut.updateThisNode(thisNode)
+      uut.updateThisNode({ thisNode })
 
       // Add the new peer
       await uut.addSubnetPeer(announceObj)
@@ -277,7 +277,7 @@ describe('#Use-Cases-Peer', () => {
         }
       }
 
-      uut.updateThisNode(thisNode)
+      uut.updateThisNode({ thisNode })
 
       // Add the new peer
       await uut.addSubnetPeer(announceObj)
@@ -321,7 +321,7 @@ describe('#Use-Cases-Peer', () => {
         }
       }
 
-      uut.updateThisNode(thisNode)
+      uut.updateThisNode({ thisNode })
 
       // Add the new peer
       await uut.addSubnetPeer(announceObj1)
@@ -617,6 +617,90 @@ describe('#Use-Cases-Peer', () => {
       } catch (err) {
         // console.log('err: ', err)
         assert.include(err.message, 'test error')
+      }
+    })
+  })
+
+  describe('#sendRPC', () => {
+    it('should return false if response is not recieved in time', async () => {
+      // Mock dependencies and force desired code path.
+      sandbox.stub(uut, 'sendPrivateMessage').resolves()
+
+      // Prep test data.
+      uut.waitPeriod = 1
+      const ipfsId = 'testId'
+      const cmdStr = 'fakeCmd'
+      const id = 1
+      const thisNode = {
+        useCases: {
+          peer: {
+            sendPrivateMessage: async () => {
+            },
+            adapters: {
+              bch: {
+                bchjs: {
+                  Util: {
+                    sleep: () => {
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      const result = await uut.sendRPC(ipfsId, cmdStr, id, thisNode)
+      // console.log('result: ', result)
+
+      assert.equal(result, false)
+    })
+
+    it('should return the result of the RPC call', async () => {
+      // Mock dependencies and force desired code path.
+      sandbox.stub(uut, 'sendPrivateMessage').resolves()
+
+      // Prep test data.
+      uut.waitPeriod = 2000
+      const ipfsId = 'testId'
+      const cmdStr = 'fakeCmd'
+      const id = 1
+      const thisNode = {
+        useCases: {
+          peer: {
+            sendPrivateMessage: async () => {
+            },
+            adapters: {
+              bch: {
+                bchjs: {
+                  Util: {
+                    sleep: () => {
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Force positive code path.
+      uut.incomingData = '{"id": 1}'
+
+      const result = await uut.sendRPC(ipfsId, cmdStr, id, thisNode)
+      // console.log('result: ', result)
+
+      assert.equal(result, true)
+    })
+
+    it('should catch and throw errors', async () => {
+      try {
+        await uut.sendRPC()
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'Cannot read')
       }
     })
   })
