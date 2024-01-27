@@ -7,6 +7,9 @@ import { assert } from 'chai'
 
 // Local libraries
 import UseCases from '../../../lib/use-cases/index.js'
+import AdapterMock from '../../mocks/adapter-mock.js'
+
+const adapters = new AdapterMock()
 
 describe('#Use-Cases-index.js', () => {
   let uut
@@ -26,7 +29,7 @@ describe('#Use-Cases-index.js', () => {
     })
 
     it('should instantiate the use cases library', () => {
-      uut = new UseCases({ adapters: {}, statusLog: {} })
+      uut = new UseCases({ adapters, statusLog: {} })
 
       assert.property(uut, 'adapters')
     })

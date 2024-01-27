@@ -24,7 +24,8 @@ class AdaptersMock {
               getTopics: () => [],
               addEventListener: () => {}
             }
-          }
+          },
+          getConnections: async () => {}
         }
       },
       getPeers: () => {
@@ -64,6 +65,7 @@ class AdaptersMock {
     this.pubsub = {
       subscribeToPubsubChannel: () => {
       },
+      subscribeToCoordChannel: async () => {},
       publishToPubsubChannel: () => {
       },
       messaging: {
@@ -93,7 +95,8 @@ class AdaptersMock {
       about: {
         queryAbout: () => {
         }
-      }
+      },
+      injectMetricsHandler: () => {}
     }
 
     this.encryption = {

@@ -5,13 +5,16 @@
 // npm libraries
 import { assert } from 'chai'
 import sinon from 'sinon'
+import cloneDeep from 'lodash.clonedeep'
 
 // Local libraries
 import RelayUseCases from '../../../lib/use-cases/relay-use-cases.js'
+import PeerUseCases from '../../../lib/use-cases/peer-use-cases.js'
 import ThisNodeUseCases from '../../../lib/use-cases/this-node-use-cases.js'
 import AdapterMock from '../../mocks/adapter-mock.js'
-import mockData from '../../mocks/peers-mock.js'
+import mockDataLib from '../../mocks/peers-mock.js'
 import relayMockData from '../../mocks/circuit-relay-mocks.js'
+import globalConfig from '../../../config/global-config.js'
 
 const adapters = new AdapterMock()
 
@@ -19,6 +22,7 @@ describe('#relay-Use-Cases', () => {
   let uut
   let sandbox
   let thisNode
+  let mockData
 
   beforeEach(async () => {
     // Restore the sandbox before each test.
@@ -33,10 +37,16 @@ describe('#relay-Use-Cases', () => {
 
     uut = new RelayUseCases({
       adapters,
-      statusLog: () => {
-      },
       bootstrapRelays: ['fake-multiaddr']
     })
+
+    const peerUseCases = new PeerUseCases({
+      adapters,
+      relayUseCases: uut
+    })
+    peerUseCases.updateThisNode({ thisNode, peerUseCases })
+
+    mockData = cloneDeep(mockDataLib)
   })
 
   afterEach(() => sandbox.restore())
@@ -98,6 +108,23 @@ describe('#relay-Use-Cases', () => {
       assert.equal(result, true)
     })
 
+    it('should load list from GitHub and connect to recommended peers', async () => {
+      // Mock dependencies
+      const data = {
+        browser: [],
+        node: [],
+        recommendedPeers: [{
+          ipfsId: '123'
+        }]
+      }
+      sandbox.stub(uut.adapters.gist, 'getCRList').resolves(data)
+      sandbox.stub(uut, 'removeDuplicates').resolves()
+
+      const result = await uut.getCRGist(thisNode)
+
+      assert.equal(result, true)
+    })
+
     it('should catch and throw errors', async () => {
       try {
         // Force desired code path.
@@ -113,56 +140,124 @@ describe('#relay-Use-Cases', () => {
   })
 
   describe('#connectToCRs', () => {
-    it('should connect to array of circuit relays', async () => {
-      await uut.connectToCRs(thisNode)
-
-      assert.equal(true, true, 'Not throwing an error is a success')
-    })
-
-    it('Should try to connect to circuit relays', async () => {
+    it('Should try to connect to a circuit relay', async () => {
       // Force circuit relay to be used.
       thisNode.relayData = mockData.mockRelayData
 
       // Mock dependencies
-      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
       sandbox.stub(uut, 'sortRelays').returns(thisNode.relayData)
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.connectedPeerList01)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves({ success: true })
 
       // uut.state.relays = crMockData.circuitRelays
-      await uut.connectToCRs(thisNode)
+      const result = await uut.connectToCRs(thisNode)
 
-      assert.equal(true, true, 'Not throwing an error is a success')
+      // Assert function executed successfully.
+      assert.equal(result, true)
+    })
+
+    it('Should report issues with connecting to circuit relay', async () => {
+      // Force circuit relay to be used.
+      thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut, 'sortRelays').returns(thisNode.relayData)
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.connectedPeerList01)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves({ success: false })
+
+      // uut.state.relays = crMockData.circuitRelays
+      const result = await uut.connectToCRs(thisNode)
+
+      // Assert function executed successfully.
+      assert.equal(result, true)
     })
 
     it('Should skip relays that are already connected', async () => {
       // Force circuit relay to be used.
       thisNode.relayData = mockData.mockRelayData
 
-      // Force mock ciruit relay to appear as being already connected.
-      thisNode.relayData[0].multiaddr = mockData.swarmPeers[0].peer
+      // Force mock circuit relay to appear as being already connected.
+      mockData.connectedPeerList01.push(mockData.mockRelayData[0].ipfsId)
 
       // Mock dependencies
-      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
       sandbox.stub(uut, 'sortRelays').returns(thisNode.relayData)
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.connectedPeerList01)
 
       // uut.state.relays = crMockData.circuitRelays
-      await uut.connectToCRs(thisNode)
+      const result = await uut.connectToCRs(thisNode)
 
-      assert.equal(true, true, 'Not throwing an error is a success')
+      // Assert function executed successfully.
+      assert.equal(result, true)
     })
 
-    it('Should try to connect to circuit relays', async () => {
+    it('Should replace multiaddr for connected relays', async () => {
       // Force circuit relay to be used.
       thisNode.relayData = mockData.mockRelayData
 
+      // Force mock circuit relay to appear as being already connected.
+      mockData.connectedPeerList01.push(mockData.mockRelayData[0].ipfsId)
+
+      // Force entity data with implicit multiaddr, which will will overwrite
+      // the explicit multiaddr provided by the realy.
+      thisNode.peerData.push({
+        from: 'QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL',
+        data: {
+          connectionAddr: 'fake-multiaddr'
+        }
+      })
+
       // Mock dependencies
-      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers2)
-      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
       sandbox.stub(uut, 'sortRelays').returns(thisNode.relayData)
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.connectedPeerList01)
 
       // uut.state.relays = crMockData.circuitRelays
-      await uut.connectToCRs(thisNode)
+      const result = await uut.connectToCRs(thisNode)
 
-      assert.equal(true, true, 'Not throwing an error is a success')
+      console.log('thisNode.peerData: ', thisNode.peerData)
+
+      // Assert function executed successfully.
+      assert.equal(result, true)
+
+      // Assert that the multiaddr was overwritten
+      assert.include(thisNode.peerData[0].data.connectionAddr, '/ip4/116.203.193.74/tcp/4001/ipfs/')
+    })
+
+    it('Should replace multiaddr for connected relays, if multiaddr does not include tcp', async () => {
+      // Force relay data to have a udp multiaddr
+      mockData.mockRelayData[0].multiaddr = '/ip4/116.203.193.74/udp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL'
+
+      // Force circuit relay to be used.
+      thisNode.relayData = mockData.mockRelayData
+
+      // Force mock circuit relay to appear as being already connected.
+      mockData.connectedPeerList01.push(mockData.mockRelayData[0].ipfsId)
+
+      // Force entity data with implicit multiaddr, which will will overwrite
+      // the explicit multiaddr provided by the realy.
+      thisNode.peerData.push({
+        from: 'QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL',
+        data: {
+          connectionAddr: 'fake-multiaddr'
+        }
+      })
+
+      // Mock dependencies
+      sandbox.stub(uut, 'sortRelays').returns(thisNode.relayData)
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.connectedPeerList01)
+      sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getConnections').returns([{
+        remoteAddr: '/ip4/116.203.193.74/tcp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL'
+      }])
+
+      // uut.state.relays = crMockData.circuitRelays
+      const result = await uut.connectToCRs(thisNode)
+
+      console.log('thisNode.peerData: ', thisNode.peerData)
+
+      // Assert function executed successfully.
+      assert.equal(result, true)
+
+      // Assert that the multiaddr was overwritten
+      assert.include(thisNode.peerData[0].data.connectionAddr, 'tcp')
     })
 
     it('should return false when error occurs.', async () => {
@@ -412,7 +507,7 @@ describe('#relay-Use-Cases', () => {
       }
 
       // Mock dependencies
-      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves({ status: true })
       sandbox
         .stub(uut.adapters.ipfs, 'getPeers')
         .resolves([{ peer: ipfsId, addr: '/ip4/addr1' }])
@@ -504,7 +599,7 @@ describe('#relay-Use-Cases', () => {
       await uut.measureRelays(thisNode)
       // console.log('thisNode: ', thisNode)
 
-      assert.equal(thisNode.relayData[0].metrics.aboutLatency[0], 10000)
+      assert.equal(thisNode.relayData[0].metrics.aboutLatency[0], globalConfig.MAX_LATENCY)
     })
 
     it('should score the latency of a relay peer', async () => {
@@ -601,7 +696,7 @@ describe('#relay-Use-Cases', () => {
       const result = uut.sortRelays(relayData)
       // console.log('result: ', result)
 
-      assert.equal(result[0].latencyScore, 10000)
+      assert.equal(result[0].latencyScore, globalConfig.MAX_LATENCY)
     })
 
     it('should give highest score to empty metrics array', () => {
@@ -610,7 +705,7 @@ describe('#relay-Use-Cases', () => {
       const result = uut.sortRelays(relayData)
       // console.log('result: ', result)
 
-      assert.equal(result[0].latencyScore, 10000)
+      assert.equal(result[0].latencyScore, globalConfig.MAX_LATENCY)
     })
 
     it('should catch and throw errors', () => {

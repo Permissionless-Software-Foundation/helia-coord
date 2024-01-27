@@ -512,42 +512,30 @@ describe('#Adapter - Pubsub', () => {
     })
   })
 
-  describe('#manageMsgCache', () => {
-    it('should shift out an element if the array is too big', () => {
-      uut.trackedMsgs = [1, 2, 3, 4]
-      uut.TRACKED_MSG_SIZE = 3
-
-      uut.manageMsgCache()
-      // console.log('uut.trackedMsgs: ', uut.trackedMsgs)
-
-      assert.equal(uut.trackedMsgs.length, 3)
-    })
-  })
-
-  describe('#checkForDuplicateMsg', () => {
-    it('should return true if message sn HAS NOT been seen', () => {
-      const msg = {
-        detail: {
-          sequenceNumber: 123
-        }
+  describe('#subscribeToCoordChannel', () => {
+    it('should subscribe to the coordination channel', async () => {
+      const inObj = {
+        chanName: globalConfig.DEFAULT_COORDINATION_ROOM,
+        handler: () => {}
       }
 
-      const result = uut.checkForDuplicateMsg(msg)
+      const result = await uut.subscribeToCoordChannel(inObj)
 
       assert.equal(result, true)
     })
 
-    it('should return false if message sn HAS been seen', () => {
-      const msg = {
-        detail: {
-          sequenceNumber: 123
-        }
+    it('should catch, report, and throw errors', async () => {
+      try {
+        // Force an error
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').throws(new Error('test error'))
+
+        await uut.subscribeToCoordChannel()
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        // console.log('err: ', err)
+        assert.include(err.message, 'test error')
       }
-
-      uut.checkForDuplicateMsg(msg)
-      const result = uut.checkForDuplicateMsg(msg)
-
-      assert.equal(result, false)
     })
   })
 })

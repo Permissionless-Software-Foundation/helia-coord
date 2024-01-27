@@ -26,5 +26,20 @@ describe('#index.js-Controllers', () => {
         )
       }
     })
+
+    it('should throw an error if Use Cases are not injected', () => {
+      try {
+        uut = new Controllers({ adapters: {} })
+
+        assert.fail('Unexpected code path')
+
+        console.log(uut)
+      } catch (err) {
+        assert.include(
+          err.message,
+          'Instance of useCases required when instantiating Controllers'
+        )
+      }
+    })
   })
 })

@@ -34,6 +34,7 @@ class IpfsCoord {
     // 0 = no debug information.
     // 1 = status logs
     // 2 = verbose errors about peer connections
+    // 3 = everything
     this.debugLevel = parseInt(localConfig.debugLevel)
     if (!this.debugLevel) this.debugLevel = 0
     localConfig.debugLevel = this.debugLevel
@@ -80,15 +81,20 @@ class IpfsCoord {
     await this.adapters.ipfs.start()
 
     // Create an instance of the 'self' which represents this IPFS node, BCH
-    // wallet, and other things that make up this ipfs-coord powered IPFS node.
+    // wallet, and other things that make up this helia-coord powered IPFS node.
     this.thisNode = await this.useCases.thisNode.createSelf({ type: this.type })
     // console.log('thisNode: ', this.thisNode)
 
+    // Pass instance of thisNode to the other use-case libraries.
+    this.useCases.peer.updateThisNode({ thisNode: this.thisNode, peerUseCases: this.useCases.peer })
+    this.useCases.pubsub.updateThisNode(this.thisNode)
+
     // Subscribe to Pubsub Channels
-    await this.useCases.pubsub.initializePubsub(this.thisNode)
+    // await this.useCases.pubsub.initializePubsub(this.thisNode)
+    await this.useCases.pubsub.initializePubsub({ controllers: this.controllers })
 
     // Start timer-based controllers.
-    await this.controllers.timer.startTimers(this.thisNode, this.useCases)
+    await this.controllers.timer.startTimers(this.thisNode)
 
     // Kick-off initial connection to Circuit Relays and Peers.
     // Note: Deliberatly *not* using await here, so that it doesn't block startup
@@ -108,7 +114,7 @@ class IpfsCoord {
       await this.useCases.relays.getCRGist(this.thisNode)
       console.log('Finished connecting to Circuit Relays in GitHub Gist.')
 
-      await this.useCases.thisNode.refreshPeerConnections()
+      await this.useCases.peer.refreshPeerConnections()
       console.log('Initial connections to subnet Peers complete.')
 
       return true

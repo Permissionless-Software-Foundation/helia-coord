@@ -62,8 +62,14 @@ const mockRelayData = [
     name: 'ipfs.fullstack.cash',
     multiaddr:
       '/ip4/116.203.193.74/tcp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL',
-    connected: true
+    connected: true,
+    ipfsId: 'QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL'
   }
+]
+
+const connectedPeerList01 = [
+  '12D3KooW9xkzLAP8tH78PBHtnDrtEYKj2YhgBsAr5RWVTr7nvFGG',
+  '12D3KooWQBmne83srRTwpmhxE7ysKXgoHt8tteWtr1e6iZSAUuyd'
 ]
 
 export default {
@@ -71,5 +77,6 @@ export default {
   announceObj2,
   swarmPeers,
   swarmPeers2,
-  mockRelayData
+  mockRelayData,
+  connectedPeerList01
 }

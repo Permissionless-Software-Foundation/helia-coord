@@ -26,8 +26,11 @@ describe('#Controllers-Timer', () => {
     sandbox = sinon.createSandbox()
     clock = sinon.useFakeTimers()
 
+    useCases = new UseCasesMock()
+
     uut = new TimerControllers({
       adapters,
+      useCases,
       statusLog: () => {
       }
     })
@@ -39,8 +42,6 @@ describe('#Controllers-Timer', () => {
       }
     })
     thisNode = await thisNodeUseCases.createSelf({ type: 'node.js' })
-
-    useCases = new UseCasesMock()
   })
 
   afterEach(() => {
@@ -67,9 +68,20 @@ describe('#Controllers-Timer', () => {
       }
     })
 
-    it('should throw an error if status log handler is not included', () => {
+    it('should throw an error if use cases are not included', () => {
       try {
         uut = new TimerControllers({ adapters })
+      } catch (err) {
+        assert.include(
+          err.message,
+          'Instance of use cases required when instantiating Timer Controllers'
+        )
+      }
+    })
+
+    it('should throw an error if status log handler is not included', () => {
+      try {
+        uut = new TimerControllers({ adapters, useCases })
       } catch (err) {
         assert.include(
           err.message,
@@ -107,7 +119,11 @@ describe('#Controllers-Timer', () => {
       sandbox.stub(uut, 'searchForRelays').resolves()
       sandbox.stub(uut, 'listPubsubChannels').resolves()
 
-      uut.startTimers()
+      const thisNode = {
+        peerData: []
+      }
+
+      uut.startTimers(thisNode)
       clock.tick(200000)
 
       assert.isOk(true)
@@ -177,7 +193,7 @@ describe('#Controllers-Timer', () => {
     it('should catch and report an error', async () => {
       // Force an error
       sandbox
-        .stub(useCases.thisNode, 'refreshPeerConnections')
+        .stub(useCases.peer, 'refreshPeerConnections')
         .throws(new Error('test error'))
 
       const result = await uut.managePeers(thisNode, useCases)
