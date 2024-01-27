@@ -14,6 +14,7 @@ import ThisNodeUseCases from '../../../lib/use-cases/this-node-use-cases.js'
 import AdapterMock from '../../mocks/adapter-mock.js'
 import mockDataLib from '../../mocks/peers-mock.js'
 import relayMockData from '../../mocks/circuit-relay-mocks.js'
+import globalConfig from '../../../config/global-config.js'
 
 const adapters = new AdapterMock()
 
@@ -598,7 +599,7 @@ describe('#relay-Use-Cases', () => {
       await uut.measureRelays(thisNode)
       // console.log('thisNode: ', thisNode)
 
-      assert.equal(thisNode.relayData[0].metrics.aboutLatency[0], 10000)
+      assert.equal(thisNode.relayData[0].metrics.aboutLatency[0], globalConfig.MAX_LATENCY)
     })
 
     it('should score the latency of a relay peer', async () => {
@@ -695,7 +696,7 @@ describe('#relay-Use-Cases', () => {
       const result = uut.sortRelays(relayData)
       // console.log('result: ', result)
 
-      assert.equal(result[0].latencyScore, 10000)
+      assert.equal(result[0].latencyScore, globalConfig.MAX_LATENCY)
     })
 
     it('should give highest score to empty metrics array', () => {
@@ -704,7 +705,7 @@ describe('#relay-Use-Cases', () => {
       const result = uut.sortRelays(relayData)
       // console.log('result: ', result)
 
-      assert.equal(result[0].latencyScore, 10000)
+      assert.equal(result[0].latencyScore, globalConfig.MAX_LATENCY)
     })
 
     it('should catch and throw errors', () => {
