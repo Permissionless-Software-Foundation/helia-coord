@@ -9,6 +9,7 @@ import cloneDeep from 'lodash.clonedeep'
 
 // Local libraries
 import RelayUseCases from '../../../lib/use-cases/relay-use-cases.js'
+import PeerUseCases from '../../../lib/use-cases/peer-use-cases.js'
 import ThisNodeUseCases from '../../../lib/use-cases/this-node-use-cases.js'
 import AdapterMock from '../../mocks/adapter-mock.js'
 import mockDataLib from '../../mocks/peers-mock.js'
@@ -37,6 +38,12 @@ describe('#relay-Use-Cases', () => {
       adapters,
       bootstrapRelays: ['fake-multiaddr']
     })
+
+    const peerUseCases = new PeerUseCases({
+      adapters,
+      relayUseCases: uut
+    })
+    peerUseCases.updateThisNode({ thisNode, peerUseCases })
 
     mockData = cloneDeep(mockDataLib)
   })
