@@ -118,8 +118,8 @@ class AdaptersMock {
     }
 
     this.gist = {
-      getCRList: async () => {
-      }
+      getCRList: async () => {},
+      getCRList2: async () => {}
     }
   }
 }
