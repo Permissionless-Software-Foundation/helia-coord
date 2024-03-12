@@ -76,7 +76,7 @@ describe('#relay-Use-Cases', () => {
         }],
         recommendedPeers: []
       }
-      sandbox.stub(uut.adapters.gist, 'getCRList').resolves(data)
+      sandbox.stub(uut.adapters.gist, 'getCRList2').resolves(data)
       sandbox.stub(uut, 'removeDuplicates').resolves()
 
       const result = await uut.getCRGist(thisNode)
@@ -100,7 +100,7 @@ describe('#relay-Use-Cases', () => {
         node: [],
         recommendedPeers: []
       }
-      sandbox.stub(uut.adapters.gist, 'getCRList').resolves(data)
+      sandbox.stub(uut.adapters.gist, 'getCRList2').resolves(data)
       sandbox.stub(uut, 'removeDuplicates').resolves()
 
       const result = await uut.getCRGist(thisNode)
@@ -117,7 +117,7 @@ describe('#relay-Use-Cases', () => {
           ipfsId: '123'
         }]
       }
-      sandbox.stub(uut.adapters.gist, 'getCRList').resolves(data)
+      sandbox.stub(uut.adapters.gist, 'getCRList2').resolves(data)
       sandbox.stub(uut, 'removeDuplicates').resolves()
 
       const result = await uut.getCRGist(thisNode)
@@ -128,7 +128,7 @@ describe('#relay-Use-Cases', () => {
     it('should catch and throw errors', async () => {
       try {
         // Force desired code path.
-        sandbox.stub(uut.adapters.gist, 'getCRList').rejects(new Error('test error'))
+        sandbox.stub(uut.adapters.gist, 'getCRList2').rejects(new Error('test error'))
 
         await uut.getCRGist()
 
