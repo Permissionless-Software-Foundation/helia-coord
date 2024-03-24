@@ -128,7 +128,8 @@ describe('#relay-Use-Cases', () => {
     it('should catch and throw errors', async () => {
       try {
         // Force desired code path.
-        sandbox.stub(uut.adapters.gist, 'getCRList2').rejects(new Error('test error'))
+        // sandbox.stub(uut.adapters.gist, 'getCRList2').rejects(new Error('test error'))
+        sandbox.stub(uut.retryQueue, 'addToQueue').rejects(new Error('test error'))
 
         await uut.getCRGist()
 
