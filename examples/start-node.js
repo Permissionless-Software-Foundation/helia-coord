@@ -30,5 +30,11 @@ async function start () {
 
   await ipfsCoord.start()
   console.log('IPFS and the coordination library is ready.')
+
+  // Periodically display peer data.
+  setInterval(function() {
+    const peerData = ipfsCoord.thisNode.peerData
+    console.log('peerData: ', peerData)
+  }, 60000 * 2)
 }
 start()
