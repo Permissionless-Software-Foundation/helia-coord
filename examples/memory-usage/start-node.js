@@ -33,14 +33,9 @@ async function start () {
   await ipfsCoord.start()
   console.log('IPFS and the coordination library is ready.')
 
-  setInterval(async function() {
+  setInterval(async function () {
     try {
-      let memoryLog = await import('./memory-log.json', {
-        assert: {
-          type: "json",
-        }
-      })
-      memoryLog = memoryLog.default
+      const memoryLog = JSON.parse(fs.readFileSync('./memory-log.json'))
       // console.log('memoryLog: ', memoryLog)
 
       const memory = memoryUsage()
@@ -54,9 +49,9 @@ async function start () {
 
       await fs.writeFileSync('./memory-log.json', JSON.stringify(memoryLog, null, 2))
       console.log(`Memory logged at ${now.toLocaleString()}`)
-    } catch(err) {
+    } catch (err) {
       console.error('Error trying to measure memory: ', err)
     }
-  }, 60000)
+  }, 10000)
 }
 start()
