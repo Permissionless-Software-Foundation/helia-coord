@@ -1,0 +1,66 @@
+{
+  "name": "helia-coord",
+  "version": "1.2.2",
+  "description": "A JS library for helping IPFS peers coordinate, find a common interest, and stay connected around that interest.",
+  "main": "./index.js",
+  "type": "module",
+  "scripts": {
+    "test": "npm run lint && cross-env 'NODE_OPTIONS=--experimental-loader @istanbuljs/esm-loader-hook' nyc mocha --recursive --exit test/unit/",
+    "lint": "standard --env mocha --fix",
+    "coverage:report": "cross-env 'NODE_OPTIONS=--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html mocha test/unit/ --recursive --exit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Permissionless-Software-Foundation/helia-coord.git"
+  },
+  "author": "Chris Troutner <chris.troutner@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Permissionless-Software-Foundation/helia-coord/issues"
+  },
+  "homepage": "https://github.com/Permissionless-Software-Foundation/helia-coord#readme",
+  "devDependencies": {
+    "@chainsafe/libp2p-gossipsub": "11.0.1",
+    "@chainsafe/libp2p-noise": "14.1.0",
+    "@chainsafe/libp2p-yamux": "6.0.1",
+    "@istanbuljs/esm-loader-hook": "0.2.0",
+    "@libp2p/circuit-relay-v2": "1.0.13",
+    "@libp2p/identify": "1.0.12",
+    "@libp2p/tcp": "9.0.13",
+    "@libp2p/webrtc": "4.0.17",
+    "@libp2p/websockets": "8.0.13",
+    "@multiformats/multiaddr": "12.1.12",
+    "blockstore-fs": "1.1.9",
+    "chai": "4.3.6",
+    "cross-env": "7.0.3",
+    "datastore-fs": "9.1.7",
+    "helia": "2.1.0",
+    "lodash.clonedeep": "4.5.0",
+    "minimal-slp-wallet": "5.8.9",
+    "mocha": "10.0.0",
+    "nyc": "15.1.0",
+    "public-ip": "6.0.1",
+    "sinon": "14.0.0",
+    "standard": "17.0.0"
+  },
+  "dependencies": {
+    "@chris.troutner/retry-queue": "1.0.8",
+    "bch-encrypt-lib": "2.1.1",
+    "uuid": "9.0.0"
+  },
+  "peerDependencies": {
+    "libp2p": ">=1.2.1"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "browser": "./index.js",
+        "node": "./index.js",
+        "default": "./index.js"
+      },
+      "require": {
+        "default": "./index.js"
+      }
+    }
+  }
+}
