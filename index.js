@@ -90,16 +90,18 @@ class IpfsCoord {
     this.useCases.pubsub.updateThisNode(this.thisNode)
 
     // Subscribe to Pubsub Channels
-    // await this.useCases.pubsub.initializePubsub(this.thisNode)
-    await this.useCases.pubsub.initializePubsub({ controllers: this.controllers })
+    // feature commented out
+    // await this.useCases.pubsub.initializePubsub({ controllers: this.controllers })
 
     // Start timer-based controllers.
-    await this.controllers.timer.startTimers(this.thisNode)
+    // feature commented out
+    // await this.controllers.timer.startTimers(this.thisNode)
 
     // Kick-off initial connection to Circuit Relays and Peers.
     // Note: Deliberatly *not* using await here, so that it doesn't block startup
     // of ipfs-service-provider.
-    this._initializeConnections()
+    // feature commented out
+    // this._initializeConnections()
 
     return true
   }

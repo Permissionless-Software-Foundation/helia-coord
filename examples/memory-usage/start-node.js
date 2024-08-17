@@ -52,6 +52,6 @@ async function start () {
     } catch (err) {
       console.error('Error trying to measure memory: ', err)
     }
-  }, 10000)
+  }, 60000)
 }
 start()
