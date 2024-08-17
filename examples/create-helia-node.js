@@ -143,6 +143,8 @@ class CreateHeliaNode {
 
       !fs.existsSync(`${IPFS_DIR}/datastore`) && fs.mkdirSync(`${IPFS_DIR}/datastore`)
 
+      // !fs.existsSync(`${IPFS_DIR}/datastore/peers`) && fs.mkdirSync(`${IPFS_DIR}/datastore/peers`)
+
       return true
     } catch (err) {
       console.error('Error in ensureBlocksDir(): ', err)
