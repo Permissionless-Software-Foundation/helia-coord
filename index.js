@@ -100,8 +100,7 @@ class IpfsCoord {
     // Kick-off initial connection to Circuit Relays and Peers.
     // Note: Deliberatly *not* using await here, so that it doesn't block startup
     // of ipfs-service-provider.
-    // feature commented out
-    // this._initializeConnections()
+    this._initializeConnections()
 
     return true
   }
