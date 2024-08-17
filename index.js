@@ -94,8 +94,7 @@ class IpfsCoord {
     await this.useCases.pubsub.initializePubsub({ controllers: this.controllers })
 
     // Start timer-based controllers.
-    // feature commented out
-    // await this.controllers.timer.startTimers(this.thisNode)
+    await this.controllers.timer.startTimers(this.thisNode)
 
     // Kick-off initial connection to Circuit Relays and Peers.
     // Note: Deliberatly *not* using await here, so that it doesn't block startup
