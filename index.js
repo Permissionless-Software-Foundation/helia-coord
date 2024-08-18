@@ -90,7 +90,7 @@ class IpfsCoord {
     this.useCases.pubsub.updateThisNode(this.thisNode)
 
     // Subscribe to Pubsub Channels
-    // await this.useCases.pubsub.initializePubsub(this.thisNode)
+    // feature commented out
     await this.useCases.pubsub.initializePubsub({ controllers: this.controllers })
 
     // Start timer-based controllers.

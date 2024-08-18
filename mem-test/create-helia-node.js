@@ -81,7 +81,7 @@ class CreateHeliaNode {
       // Configure services
       const services = {
         identify: identify(),
-        pubsub: gossipsub({ allowPublishToZeroTopicPeers: true })
+        pubsub: gossipsub({ allowPublishToZeroPeers: true })
       }
 
       // libp2p is the networking layer that underpins Helia
@@ -142,8 +142,6 @@ class CreateHeliaNode {
       !fs.existsSync(`${IPFS_DIR}/blockstore`) && fs.mkdirSync(`${IPFS_DIR}/blockstore`)
 
       !fs.existsSync(`${IPFS_DIR}/datastore`) && fs.mkdirSync(`${IPFS_DIR}/datastore`)
-
-      // !fs.existsSync(`${IPFS_DIR}/datastore/peers`) && fs.mkdirSync(`${IPFS_DIR}/datastore/peers`)
 
       return true
     } catch (err) {
