@@ -49,7 +49,7 @@
     "uuid": "9.0.0"
   },
   "peerDependencies": {
-    "libp2p": ">=1.2.1"
+    "libp2p": ">=1.9.1"
   },
   "exports": {
     ".": {
