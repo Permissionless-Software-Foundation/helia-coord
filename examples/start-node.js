@@ -31,20 +31,9 @@ async function start () {
 
     await ipfsCoord.start()
     console.log('IPFS and the coordination library is ready.')
-  } catch(err) {
+  } catch (err) {
     console.error('Error in start(): ', err)
   }
 }
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection:', { reason, promise})
-
-  if(reason instanceof AbortError || reason.code === 'ABORT_ERR') {
-    console.error('AbortError encountered, not restarting the application.')
-  } else {
-    console.error('Critical error encountered, restarting the application...')
-    process.exit(1)
-  }
-})
 
 start()
