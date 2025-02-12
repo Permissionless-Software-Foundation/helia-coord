@@ -11,24 +11,29 @@ import IpfsCoord from '../index.js'
 import CreateHeliaNode from './create-helia-node.js'
 
 async function start () {
-  // Create an instance of bch-js and IPFS.
-  const wallet = new SlpWallet()
-  await wallet.walletInfoPromise
+  try {
+    // Create an instance of bch-js and IPFS.
+    const wallet = new SlpWallet()
+    await wallet.walletInfoPromise
 
-  const createHeliaNode = new CreateHeliaNode()
-  const ipfs = await createHeliaNode.start()
+    const createHeliaNode = new CreateHeliaNode()
+    const ipfs = await createHeliaNode.start()
 
-  // Pass bch-js and IPFS to ipfs-coord when instantiating it.
-  const ipfsCoord = new IpfsCoord({
-    ipfs,
-    wallet,
-    type: 'node.js',
-    // type: 'browser'
-    nodeType: 'external',
-    debugLevel: 2
-  })
+    // Pass bch-js and IPFS to ipfs-coord when instantiating it.
+    const ipfsCoord = new IpfsCoord({
+      ipfs,
+      wallet,
+      type: 'node.js',
+      // type: 'browser'
+      nodeType: 'external',
+      debugLevel: 2
+    })
 
-  await ipfsCoord.start()
-  console.log('IPFS and the coordination library is ready.')
+    await ipfsCoord.start()
+    console.log('IPFS and the coordination library is ready.')
+  } catch (err) {
+    console.error('Error in start(): ', err)
+  }
 }
+
 start()
