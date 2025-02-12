@@ -101,7 +101,7 @@ class CreateHeliaNode {
           circuitRelayTransport({ discoverRelays: 3 }),
           webRTC()
         ],
-        connectionEncryption: [
+        connectionEncrypters: [
           noise()
         ],
         streamMuxers: [
