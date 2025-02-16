@@ -23,6 +23,7 @@ import { webSockets } from '@libp2p/websockets'
 import { publicIpv4 } from 'public-ip'
 import { multiaddr } from '@multiformats/multiaddr'
 import { webRTC } from '@libp2p/webrtc'
+import { ping } from '@libp2p/ping'
 
 const ROOT_DIR = './'
 const IPFS_DIR = './.ipfsdata/ipfs'
@@ -81,7 +82,8 @@ class CreateHeliaNode {
       // Configure services
       const services = {
         identify: identify(),
-        pubsub: gossipsub({ allowPublishToZeroTopicPeers: true })
+        pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+        ping: ping()
       }
 
       // libp2p is the networking layer that underpins Helia

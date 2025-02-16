@@ -16,13 +16,14 @@ import { yamux } from '@chainsafe/libp2p-yamux'
 // import { bootstrap } from '@libp2p/bootstrap'
 // import { identifyService } from 'libp2p/identify'
 import { identify } from '@libp2p/identify'
-// import { circuitRelayTransport } from 'libp2p/circuit-relay'
-import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
+// import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
+import { circuitRelayServer, circuitRelayTransport } from '@libp2p/circuit-relay-v2'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { webSockets } from '@libp2p/websockets'
 import { publicIpv4 } from 'public-ip'
 import { multiaddr } from '@multiformats/multiaddr'
 import { webRTC } from '@libp2p/webrtc'
+import { ping } from '@libp2p/ping'
 
 const ROOT_DIR = './'
 const IPFS_DIR = './.ipfsdata/ipfs'
@@ -81,7 +82,21 @@ class CreateHeliaNode {
       // Configure services
       const services = {
         identify: identify(),
-        pubsub: gossipsub({ allowPublishToZeroTopicPeers: true })
+        pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+        ping: ping(),
+        relay: circuitRelayServer({ // makes the node function as a relay server
+          hopTimeout: 30 * 1000, // incoming relay requests must be resolved within this time limit
+          advertise: true,
+          reservations: {
+            maxReservations: 15, // how many peers are allowed to reserve relay slots on this server
+            reservationClearInterval: 300 * 1000, // how often to reclaim stale reservations
+            applyDefaultLimit: true, // whether to apply default data/duration limits to each relayed connection
+            defaultDurationLimit: 2 * 60 * 1000, // the default maximum amount of time a relayed connection can be open for
+            defaultDataLimit: BigInt(2 << 7), // the default maximum number of bytes that can be transferred over a relayed connection
+            maxInboundHopStreams: 32, // how many inbound HOP streams are allow simultaneously
+            maxOutboundHopStreams: 64 // how many outbound HOP streams are allow simultaneously
+          }
+        })
       }
 
       // libp2p is the networking layer that underpins Helia
@@ -92,8 +107,7 @@ class CreateHeliaNode {
             '/ip4/127.0.0.1/tcp/0',
             '/ip4/0.0.0.0/tcp/4001',
             '/ip4/0.0.0.0/tcp/4003/ws',
-            '/webrtc',
-            '/p2p-circuit'
+            '/webrtc'
           ]
         },
         transports: [
