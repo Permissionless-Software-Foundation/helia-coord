@@ -22,7 +22,8 @@ class UseCasesMock {
     }
     this.peer = {
       addSubnetPeer: async () => {},
-      refreshPeerConnections: async () => {}
+      refreshPeerConnections: async () => {},
+      getMultiaddrs: async () => {}
     }
   }
 }
