@@ -269,6 +269,85 @@ describe('#relay-Use-Cases', () => {
 
       assert.equal(result, false)
     })
+
+    it('Should log when CR is connected through another CR, and does not have a tcp transport', async () => {
+      // Force relay data to have a p2p-circuit multiaddr
+      // mockData.mockRelayData[0].multiaddr = '/ip4/116.203.193.74/tcp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL'
+      mockData.mockRelayData[0].multiaddr = '/ip4/116.203.193.74/udp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL/p2p-circuit/p2p/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL'
+
+      // Force circuit relay to be used.
+      thisNode.relayData = mockData.mockRelayData
+
+      // Force mock circuit relay to appear as being already connected.
+      mockData.connectedPeerList01.push(mockData.mockRelayData[0].ipfsId)
+
+      // Force entity data with implicit multiaddr, which will will overwrite
+      // the explicit multiaddr provided by the realy.
+      thisNode.peerData.push({
+        from: 'QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL',
+        data: {
+          connectionAddr: 'fake-multiaddr'
+        }
+      })
+
+      // Mock dependencies
+      sandbox.stub(uut, 'sortRelays').returns(thisNode.relayData)
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.connectedPeerList01)
+      sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getConnections').returns([{
+        remoteAddr: '/ip4/116.203.193.74/udp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL/p2p-circuit/p2p/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL'
+      }])
+
+      // uut.state.relays = crMockData.circuitRelays
+      const result = await uut.connectToCRs(thisNode)
+
+      console.log('thisNode.peerData: ', thisNode.peerData)
+
+      // Assert function executed successfully.
+      assert.equal(result, true)
+
+      // Assert that the multiaddr was overwritten
+      // assert.include(thisNode.peerData[0].data.connectionAddr, 'tcp')
+    })
+
+    it('Should log when CR makes a new connection through another CR, and does not have a tcp transport', async () => {
+      // Force relay data to have a p2p-circuit multiaddr
+      // mockData.mockRelayData[0].multiaddr = '/ip4/116.203.193.74/tcp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL'
+      mockData.mockRelayData[0].multiaddr = '/ip4/116.203.193.74/udp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL/p2p-circuit/p2p/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL'
+
+      // Force circuit relay to be used.
+      thisNode.relayData = mockData.mockRelayData
+
+      // Force mock circuit relay to appear as being already connected.
+      // mockData.connectedPeerList01.push(mockData.mockRelayData[0].ipfsId)
+
+      // Force entity data with implicit multiaddr, which will will overwrite
+      // the explicit multiaddr provided by the realy.
+      thisNode.peerData.push({
+        from: 'QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL',
+        data: {
+          connectionAddr: 'fake-multiaddr'
+        }
+      })
+
+      // Mock dependencies
+      sandbox.stub(uut, 'sortRelays').returns(thisNode.relayData)
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.connectedPeerList01)
+      sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getConnections').returns([{
+        remoteAddr: '/ip4/116.203.193.74/udp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL/p2p-circuit/p2p/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL'
+      }])
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves({ success: true })
+
+      // uut.state.relays = crMockData.circuitRelays
+      const result = await uut.connectToCRs(thisNode)
+
+      console.log('thisNode.peerData: ', thisNode.peerData)
+
+      // Assert function executed successfully.
+      assert.equal(result, true)
+
+      // Assert that the multiaddr was overwritten
+      // assert.include(thisNode.peerData[0].data.connectionAddr, 'tcp')
+    })
   })
 
   describe('#addRelay', () => {
