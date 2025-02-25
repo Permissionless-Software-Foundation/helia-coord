@@ -104,4 +104,12 @@ describe('#Pubsub-Controller', () => {
       assert.equal(result, false)
     })
   })
+
+  describe('#coinjoinPubsubHandler', () => {
+    it('should always return true', () => {
+      const result = uut.coinjoinPubsubHandler()
+
+      assert.equal(result, true)
+    })
+  })
 })
