@@ -107,6 +107,22 @@ describe('#pubsub-Use-Cases', () => {
 
       assert.equal(result, true)
     })
+    it('should throw an error if controllers are not provided', async () => {
+      try {
+        sandbox.stub(uut.adapters.pubsub, 'subscribeToCoordChannel').resolves()
+
+        uut.updateThisNode({
+          pubsubChannels: []
+        })
+
+        await uut.initializePubsub()
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'Instance of controllers must be passed to initializePubsub()')
+      }
+    })
 
     it('should catch and throw an error', async () => {
       try {

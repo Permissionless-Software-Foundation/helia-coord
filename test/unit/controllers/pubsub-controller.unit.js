@@ -59,9 +59,11 @@ describe('#Pubsub-Controller', () => {
     })
 
     it('should overwrite default coinjoin channel handler', () => {
-      const coinjoinPubsubHandler = () => {}
+      const coinjoinPubsubHandler = sandbox.spy()
 
-      uut = new PubsubController({ adapters, useCases, coinjoinPubsubHandler })
+      const uut = new PubsubController({ adapters, useCases, coinjoinPubsubHandler })
+      uut.coinjoinPubsubHandler()
+      assert.isTrue(coinjoinPubsubHandler.called)
     })
   })
 
@@ -102,6 +104,13 @@ describe('#Pubsub-Controller', () => {
       const result = await uut.coordChanHandler()
 
       assert.equal(result, false)
+    })
+  })
+  describe('#coinjoinPubsubHandler (default)', () => {
+    it('should return true', async () => {
+      const result = await uut.coinjoinPubsubHandler()
+
+      assert.isTrue(result)
     })
   })
 })

@@ -55,4 +55,39 @@ describe('#Adapter-Gist', () => {
       }
     })
   })
+  describe('#getCRList2', () => {
+    it('should get data from GitHub', async () => {
+      // Mock network dependencies
+      sandbox.stub(uut.axios, 'get').resolves({
+        data: {
+          browser: [],
+          node: [],
+          recommendedPeers: []
+        }
+      })
+
+      const result = await uut.getCRList2()
+      // console.log('result: ', result)
+
+      assert.property(result, 'browser')
+      assert.property(result, 'node')
+      assert.property(result, 'recommendedPeers')
+      assert.isArray(result.browser)
+      assert.isArray(result.node)
+      assert.isArray(result.recommendedPeers)
+    })
+
+    it('should catch and throw errors', async () => {
+      try {
+        // Force desired code path
+        sandbox.stub(uut.axios, 'get').rejects(new Error('test error'))
+
+        await uut.getCRList2()
+
+        assert.fail('Unexpected result')
+      } catch (err) {
+        assert.include(err.message, 'test error')
+      }
+    })
+  })
 })
