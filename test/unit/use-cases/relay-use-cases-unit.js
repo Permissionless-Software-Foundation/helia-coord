@@ -172,6 +172,35 @@ describe('#relay-Use-Cases', () => {
       // Assert function executed successfully.
       assert.equal(result, true)
     })
+    it('Should debug when relay connection is not over tcp', async () => {
+      // Add a relay that is not over tcp
+      thisNode.relayData.push(
+        {
+          multiaddr:
+            '/ip4/139.162.76.54/udp/5269/ws/p2p/QmaKzQTAtoJWYMiG5ATx41uWsMajr1kSxRdtg919s8fK77',
+          connected: true,
+          updatedAt: '2021-09-20T15:59:12.961Z',
+          ipfsId: 'QmaKzQTAtoJWYMiG5ATx41uWsMajr1kSxRdtg919s8fK77',
+          isBootstrap: false,
+          metrics: { aboutLatency: [] },
+          latencyScore: 10000
+        }
+      )
+
+      // Mock dependencies
+      sandbox.stub(uut, 'sortRelays').returns(thisNode.relayData)
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.connectedPeerList01)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer').resolves({ success: true })
+      sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getConnections').returns([{
+        remoteAddr: '/ip4/116.203.193.74/udp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL/p2p-circuit'
+      }])
+
+      // uut.state.relays = crMockData.circuitRelays
+      const result = await uut.connectToCRs(thisNode)
+
+      // Assert function executed successfully.
+      assert.equal(result, true)
+    })
 
     it('Should skip relays that are already connected', async () => {
       // Force circuit relay to be used.
@@ -246,7 +275,7 @@ describe('#relay-Use-Cases', () => {
       sandbox.stub(uut, 'sortRelays').returns(thisNode.relayData)
       sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.connectedPeerList01)
       sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getConnections').returns([{
-        remoteAddr: '/ip4/116.203.193.74/tcp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL'
+        remoteAddr: '/ip4/116.203.193.74/tcp/4001/ipfs/QmNZktxkfScScnHCFSGKELH3YRqdxHQ3Le9rAoRLhZ6vgL/p2p-circuit'
       }])
 
       // uut.state.relays = crMockData.circuitRelays
@@ -628,7 +657,7 @@ describe('#relay-Use-Cases', () => {
 
       // Mock dependencies
       sandbox.stub(uut.adapters.bch.bchjs.Util, 'sleep').resolves()
-      sandbox.stub(uut.adapters.pubsub.about, 'queryAbout').resolves(true)
+      sandbox.stub(uut.peerUseCases, 'queryAbout').resolves(true)
 
       await uut.measureRelays(thisNode)
       // console.log(
@@ -673,6 +702,33 @@ describe('#relay-Use-Cases', () => {
 
       // First element of '1' should have been shifted out and replaced by '2'
       assert.equal(thisNode.relayData[0].metrics.aboutLatency[0], 2)
+    })
+
+    it('should ignore a broken peer data', async () => {
+      // Mock test data
+      const thisNode = {
+        relayData: [
+          {
+            ipfsId: 'testId',
+            isBootstrap: false,
+            connected: false,
+            metrics: {
+              aboutLatency: []
+            }
+          }
+        ],
+        peerData: [
+
+          {
+            data: null
+          }
+        ]
+      }
+
+      await uut.measureRelays(thisNode)
+      // console.log('thisNode: ', thisNode)
+
+      assert.equal(thisNode.relayData[0].metrics.aboutLatency.length, 0)
     })
   })
 

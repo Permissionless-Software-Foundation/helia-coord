@@ -113,7 +113,7 @@ describe('#Adapter - Pubsub', () => {
       // Mock dependencies
       sandbox.stub(uut, 'checkForDuplicateMsg').returns(true)
 
-      const handler = () => {}
+      const handler = () => { }
 
       const msg = {
         detail: {
@@ -133,7 +133,7 @@ describe('#Adapter - Pubsub', () => {
       // Mock dependencies
       sandbox.stub(uut, 'checkForDuplicateMsg').returns(true)
 
-      const handler = () => {}
+      const handler = () => { }
 
       const msg = {
         detail: {
@@ -197,7 +197,7 @@ describe('#Adapter - Pubsub', () => {
     })
 
     it('should throw an error if data can not be parsed', async () => {
-      const handler = () => {}
+      const handler = () => { }
 
       // Force desired code path
       mockData.mockMsg.data = Buffer.from('54234', 'hex')
@@ -212,7 +212,7 @@ describe('#Adapter - Pubsub', () => {
       // Mock dependencies
       sandbox.stub(uut, 'checkForDuplicateMsg').returns(false)
 
-      const handler = () => {}
+      const handler = () => { }
 
       const msg = {
         detail: {
@@ -362,8 +362,8 @@ describe('#Adapter - Pubsub', () => {
       // sandbox.stub(uut.ipfs.ipfs.pubsub, 'subscribe').resolves()
 
       // const chanName = 'test'
-      const handler = () => {}
-      const parsePubsubMessage = async () => {}
+      const handler = () => { }
+      const parsePubsubMessage = async () => { }
 
       // Instantiate the Broadcast message router library
       const bRouterOptions = {
@@ -388,8 +388,8 @@ describe('#Adapter - Pubsub', () => {
       // sandbox.stub(uut.ipfs.ipfs.pubsub, 'subscribe').resolves()
 
       // const chanName = 'test'
-      const handler = () => {}
-      const parsePubsubMessage = async () => {}
+      const handler = () => { }
+      const parsePubsubMessage = async () => { }
 
       // Instantiate the Broadcast message router library
       const bRouterOptions = {
@@ -411,7 +411,7 @@ describe('#Adapter - Pubsub', () => {
 
     it('should catch and handle errors, and return false', async () => {
       // Force and error
-      const handler = () => {}
+      const handler = () => { }
       const parsePubsubMessage = async () => {
         throw new Error('test error')
       }
@@ -440,7 +440,7 @@ describe('#Adapter - Pubsub', () => {
       const pRouterOptions = {
         thisNode,
         messaging: uut.messaging,
-        handleNewMessage: async () => {}
+        handleNewMessage: async () => { }
       }
       const privateRouter = new PrivateChannelRouter(pRouterOptions)
 
@@ -460,7 +460,7 @@ describe('#Adapter - Pubsub', () => {
       const pRouterOptions = {
         thisNode,
         messaging: uut.messaging,
-        handleNewMessage: async () => {}
+        handleNewMessage: async () => { }
       }
       const privateRouter = new PrivateChannelRouter(pRouterOptions)
 
@@ -480,7 +480,7 @@ describe('#Adapter - Pubsub', () => {
       const pRouterOptions = {
         thisNode,
         messaging: uut.messaging,
-        handleNewMessage: async () => {}
+        handleNewMessage: async () => { }
       }
       const privateRouter = new PrivateChannelRouter(pRouterOptions)
 
@@ -516,7 +516,7 @@ describe('#Adapter - Pubsub', () => {
     it('should subscribe to the coordination channel', async () => {
       const inObj = {
         chanName: globalConfig.DEFAULT_COORDINATION_ROOM,
-        handler: () => {}
+        handler: () => { }
       }
 
       const result = await uut.subscribeToCoordChannel(inObj)
@@ -536,6 +536,35 @@ describe('#Adapter - Pubsub', () => {
         // console.log('err: ', err)
         assert.include(err.message, 'test error')
       }
+    })
+  })
+  describe('checkForDuplicateMsg', () => {
+    it('should return true if msg is not duplicated', () => {
+      const msgMock = { detail: { sequenceNumber: 1 } }
+      const res = uut.checkForDuplicateMsg(msgMock)
+      assert.isTrue(res)
+      assert.equal(uut.trackedMsgs.length, 1)
+    })
+    it('should return falase if msg is duplicated', () => {
+      const msgMock = { detail: { sequenceNumber: 1 } }
+
+      uut.trackedMsgs = [msgMock.detail.sequenceNumber]
+      const res = uut.checkForDuplicateMsg(msgMock)
+      assert.isFalse(res)
+    })
+  })
+  describe('manageMsgCache', () => {
+    it('should shift the trackedMsgs if it exceed the limit', () => {
+      uut.TRACKED_MSG_SIZE = 2
+      uut.trackedMsgs = [1, 2, 3]
+      uut.manageMsgCache()
+      assert.equal(uut.trackedMsgs.length, 2)
+    })
+    it('should keep the trackedMsgs length if it does not exceed the limit', () => {
+      uut.TRACKED_MSG_SIZE = 4
+      uut.trackedMsgs = [1, 2, 3]
+      uut.manageMsgCache()
+      assert.equal(uut.trackedMsgs.length, 3)
     })
   })
 })
