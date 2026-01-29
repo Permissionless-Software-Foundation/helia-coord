@@ -262,6 +262,34 @@ describe('#Use-Cases-Peer', () => {
       // peerData array should only have one peer.
       assert.equal(uut.thisNode.peerData.length, 1)
     })
+    it('should persit the multiaddr if it exist', async () => {
+      // Mock dependencies
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+
+      const announceObj = {
+        from: 'peerId',
+        data: {
+          jsonLd: {
+            name: 'test'
+          },
+          orbitdb: 'orbitdbId'
+        },
+        multiaddr: ['/ip4/123.45.6.7/p2p/ipfs-id']
+      }
+      uut.updateThisNode({ thisNode })
+
+      // Add the new peer
+      uut.thisNode.peerList.push(announceObj.from)
+      uut.thisNode.peerData.push(announceObj)
+
+      const result = await uut.addSubnetPeer(announceObj)
+      // console.log('result: ', result)
+
+      assert.equal(result, true)
+
+      // peerData array should only have one peer.
+      assert.equal(uut.thisNode.peerData.length, 1)
+    })
 
     it('should return false if existing peer can not be found', async () => {
       // Mock dependencies
@@ -398,6 +426,13 @@ describe('#Use-Cases-Peer', () => {
       const result = uut.isFreshPeer(announceObj)
 
       assert.equal(result, true)
+    })
+    it('should handle Error', () => {
+      try {
+        uut.isFreshPeer(null)
+      } catch (error) {
+        assert.include(error.message, 'Cannot read properties of null')
+      }
     })
   })
 
@@ -622,6 +657,84 @@ describe('#Use-Cases-Peer', () => {
         assert.include(err.message, 'test error')
       }
     })
+    it('should update logs on fails direct connection', async () => {
+      // Add a circuit relay peer with advertised IP and port.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{ from: ipfsId, data: { ipfsMultiaddrs: [] } }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
+        .onCall(0).resolves({ success: false })
+        .resolves({ success: true })
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns(['/ip4/123.45.6.7/p2p/ipfs-id'])
+      sandbox.stub(uut, 'updatePeerConnectionInfo').returns()
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+    it('should connect to circuit relay ', async () => {
+      // Add a circuit relay peer with advertised IP and port.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{ from: ipfsId, data: { ipfsMultiaddrs: ['/p2p-circuit/ip4/123.45.6.7/tcp/4001/p2p/ipfs-id'] } }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
+        .onCall(0).resolves({ success: false })
+        .resolves({ success: true })
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns(['/ip4/123.45.6.7/p2p/ipfs-id'])
+      sandbox.stub(uut, 'updatePeerConnectionInfo').returns()
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
+    it('should update logs on fails circuit relay connection', async () => {
+      // Add a circuit relay peer with advertised IP and port.
+      const ipfsId = 'QmbyYXKbnAmMbMGo8LRBZ58jYs58anqUzY1m4jxDmhDsje'
+      uut.thisNode.peerList = [ipfsId]
+      uut.thisNode.peerData = [{ from: ipfsId, data: { ipfsMultiaddrs: ['/p2p-circuit/ip4/123.45.6.7/tcp/4001/p2p/ipfs-id'] } }]
+
+      // Add a peer
+      await uut.addSubnetPeer(mockData.announceObj)
+
+      // Force circuit relay to be used.
+      uut.thisNode.relayData = mockData.mockRelayData
+
+      // Mock dependencies
+      sandbox.stub(uut.adapters.ipfs, 'getPeers').resolves(mockData.swarmPeers)
+      sandbox.stub(uut, 'isFreshPeer').returns(true)
+      sandbox.stub(uut.adapters.ipfs, 'connectToPeer')
+        .onCall(0).resolves({ success: false })
+        .resolves({ success: false })
+      sandbox.stub(uut.utils, 'filterMultiaddrs').returns(['/ip4/123.45.6.7/p2p/ipfs-id'])
+      sandbox.stub(uut, 'updatePeerConnectionInfo').returns()
+
+      // Connect to that peer.
+      const result = await uut.refreshPeerConnections()
+
+      assert.equal(result, true)
+    })
   })
 
   describe('#sendRPC', () => {
@@ -731,6 +844,104 @@ describe('#Use-Cases-Peer', () => {
 
       const result = await uut.queryAbout()
       assert.equal(result, false)
+    })
+  })
+
+  describe('#updatePeerConnectionInfo', () => {
+    it('should update the peer connection info', async () => {
+      uut.thisNode.peerData = [{ from: 'peerId' }]
+      sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getConnections').returns([{ remoteAddr: '/ip4/123.45.6.7/p2p/ipfs-id' }])
+      const result = await uut.updatePeerConnectionInfo({ thisPeer: 'peerId' })
+      assert.equal(result, true)
+      assert.equal(uut.thisNode.peerData[0].multiaddr, '/ip4/123.45.6.7/p2p/ipfs-id')
+    })
+    it('should return false if the peer is not connected', async () => {
+      uut.thisNode.peerData = [{ from: 'peerId' }]
+      sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getConnections').returns([])
+      const result = await uut.updatePeerConnectionInfo({ thisPeer: 'peerId' })
+      assert.equal(result, false)
+    })
+    it('should return false if the peer is not found', async () => {
+      uut.thisNode.peerData = [{ from: 'peerId' }]
+      sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getConnections').returns([{ remoteAddr: '/ip4/123.45.6.7/p2p/ipfs-id' }])
+      const result = await uut.updatePeerConnectionInfo({ thisPeer: 'peerId2' })
+      assert.equal(result, false)
+    })
+    it('should handle errors', async () => {
+      try {
+        uut.thisNode.peerData = [{ from: 'peerId' }]
+        sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getConnections').throws(new Error('test error'))
+        await uut.updatePeerConnectionInfo({ thisPeer: 'peerId' })
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+  })
+  describe('#getWebRtcMultiaddr', () => {
+    it('should return the webRTC multiaddr', async () => {
+      const thisNodeMock = thisNode
+      const webRtcMultiaddr1 = '/ip4/127.0.0.1/tcp/5000/ws/p2p-circuit/webrtc/p2p/ipfs-id'
+      const webRtcMultiaddr2 = '/ip4/127.0.0.1/tcp/5001/ws/p2p-circuit/webrtc/p2p/ipfs-id2'
+
+      thisNodeMock.ipfsMultiaddrs = ['/ip4/123.45.6.7/p2p/ipfs-id', webRtcMultiaddr1, webRtcMultiaddr2]
+      sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getMultiaddrs').returns([webRtcMultiaddr2])
+
+      await uut.getWebRtcMultiaddr({ thisNode: thisNodeMock })
+
+      assert.equal(thisNodeMock.ipfsMultiaddrs.length, 2)
+      assert.equal(thisNodeMock.ipfsMultiaddrs[0], '/ip4/123.45.6.7/p2p/ipfs-id')
+      assert.equal(thisNodeMock.ipfsMultiaddrs[1], webRtcMultiaddr2, 'expected webRTC multiaddr to be updated')
+    })
+    it('should return false on error', async () => {
+      const result = await uut.getWebRtcMultiaddr(null)
+      assert.equal(result, false)
+    })
+  })
+  describe('#getMultiaddrs', () => {
+    it('should filter multiaddrs with a low chance of success', async () => {
+      const webRtcMultiaddr1 = '/ip4/157.178.192.100/tcp/5000/ws/p2p-circuit/webrtc/p2p/ipfs-id'
+      const lowChanceMultiaddrsExamples = [
+        '/ip4/127.0.0.1/tcp/4001/p2p/QmHash', // localhost
+        '/ip4/192.168.1.100/tcp/4001/p2p/QmHash', // private network (192.168.x.x)
+        '/ip4/172.16.0.100/tcp/4001/p2p/QmHash', // private network (172.16-31.x.x)
+        '/ip4/10.0.0.100/tcp/4001/p2p/QmHash', // private network (10.x.x.x)
+        '/ip4/1.2.3.4/p2p/4001/quic/p2p/QmHash', // QUIC protocol
+        '/ip4/1.2.3.4/udp/4001/p2p/QmHash', // UDP protocol
+        '/ip4/192.168.0.100/udp/4001/quic/p2p/QmHash', // private network with QUIC
+        '/ip4/172.20.0.100/udp/4001/p2p/QmHash' // private network with UDP
+
+      ]
+      sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getMultiaddrs').returns([...lowChanceMultiaddrsExamples, webRtcMultiaddr1])
+      const result = await uut.getMultiaddrs()
+      assert.equal(result.length, 1)
+      assert.equal(result[0], webRtcMultiaddr1)
+    })
+    it('should return empty array on error', async () => {
+      sandbox.stub(uut.adapters.ipfs.ipfs.libp2p, 'getMultiaddrs').throws(new Error('test error'))
+      const result = await uut.getMultiaddrs()
+      assert.equal(result.length, 0)
+    })
+  })
+  describe('relayMetricsHandler', () => {
+    it('should return true', async () => {
+      uut.incomingData = 'data'
+      await uut.relayMetricsHandler('updated data')
+      assert.equal(uut.incomingData, 'updated data')
+    })
+  })
+
+  describe('updateThisNode', () => {
+    it('should update the thisNode object', async () => {
+      const thisNodeMock = { data: 'mock node' }
+      const result = await uut.updateThisNode({ thisNode: thisNodeMock })
+      assert.equal(result, true)
+      assert.equal(uut.thisNode.data, 'mock node')
+    })
+    it('should keep as default if no data is provided', async () => {
+      const result = await uut.updateThisNode()
+      assert.equal(result, true)
+      assert.isUndefined(uut.thisNode)
     })
   })
 })

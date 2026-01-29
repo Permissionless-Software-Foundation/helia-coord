@@ -169,6 +169,23 @@ describe('#messaging-adapter', () => {
       assert.property(result, 'payload')
     })
 
+    it('should throws error if sender is not found', async () => {
+      try {
+        const ipfsId = 'unknowPeerId'
+        const data = {
+          sender: ipfsId,
+          uuid: 'fake-uuid'
+        }
+
+        await uut.generateAckMsg(data, thisNode)
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        console.log(err)
+        assert.include(err.message, 'Required encryption information for peer is not available.')
+      }
+    })
+
     it('should catch and throw errors', async () => {
       try {
         await uut.generateAckMsg()

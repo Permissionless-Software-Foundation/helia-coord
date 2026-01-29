@@ -61,18 +61,21 @@ describe('#Adapter-Gist', () => {
       // Mock network dependencies
       sandbox.stub(uut.axios, 'get').resolves({
         data: {
-          files: {
-            'psf-helia-public-circuit-relays.json': {
-              content: JSON.stringify({ key: 'value' })
-            }
-          }
+          browser: [],
+          node: [],
+          recommendedPeers: []
         }
       })
 
       const result = await uut.getCRList2()
       // console.log('result: ', result)
 
-      assert.property(result, 'files')
+      assert.property(result, 'browser')
+      assert.property(result, 'node')
+      assert.property(result, 'recommendedPeers')
+      assert.isArray(result.browser)
+      assert.isArray(result.node)
+      assert.isArray(result.recommendedPeers)
     })
 
     it('should catch and throw errors', async () => {

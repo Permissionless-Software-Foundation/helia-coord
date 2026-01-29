@@ -59,9 +59,11 @@ describe('#Pubsub-Controller', () => {
     })
 
     it('should overwrite default coinjoin channel handler', () => {
-      const coinjoinPubsubHandler = () => {}
+      const coinjoinPubsubHandler = sandbox.spy()
 
-      uut = new PubsubController({ adapters, useCases, coinjoinPubsubHandler })
+      const uut = new PubsubController({ adapters, useCases, coinjoinPubsubHandler })
+      uut.coinjoinPubsubHandler()
+      assert.isTrue(coinjoinPubsubHandler.called)
     })
   })
 

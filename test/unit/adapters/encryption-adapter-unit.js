@@ -126,6 +126,45 @@ describe('#Adapters - Encryption', () => {
         assert.include(err.message, 'pubkey must be a hex string')
       }
     })
+    it('should throw an error is peer is not provided', async () => {
+      try {
+        await uut.encryptMsg()
+        // console.log('result: ', result)
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'Peer public key is not available yet.')
+      }
+    })
+    it('should throw an error is msg is not provided', async () => {
+      try {
+        const peer = {
+          data: {
+            encryptionKey: 'abc123'
+          }
+        }
+
+        await uut.encryptMsg(peer)
+        // console.log('result: ', result)
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'Message is required.')
+      }
+    })
+    it('should throw an error is peer data is not provided', async () => {
+      try {
+        const peer = {
+        }
+
+        await uut.encryptMsg(peer, 'testMsg')
+        // console.log('result: ', result)
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'Peer public key is not available yet.')
+      }
+    })
 
     it('should throw and error if peer public key is not available', async () => {
       try {
