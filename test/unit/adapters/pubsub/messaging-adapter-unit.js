@@ -14,13 +14,14 @@ import ipfsLib from '../../../mocks/ipfs-mock.js'
 import IPFSAdapter from '../../../../lib/adapters/ipfs-adapter.js'
 import EncryptionAdapter from '../../../../lib/adapters/encryption-adapter.js'
 import BchAdapter from '../../../../lib/adapters/bch-adapter.js'
-import thisNode from '../../../mocks/thisnode-mocks.js'
+import thisNodeMock from '../../../mocks/thisnode-mocks.js'
 import ResendMsg from '../../../../lib/adapters/pubsub-adapter/resend-msg.js'
 
 describe('#messaging-adapter', () => {
   let sandbox
   let uut
   let ipfs, ipfsAdapter
+  let thisNode
 
   const log = {
     statusLog: () => {}
@@ -33,6 +34,8 @@ describe('#messaging-adapter', () => {
     // Instantiate the IPFS adapter
     ipfs = cloneDeep(ipfsLib)
     ipfsAdapter = new IPFSAdapter({ ipfs, log })
+
+    thisNode = cloneDeep(thisNodeMock)
 
     // Instantiate the Encryption adapater
     const wallet = new SlpWallet()
@@ -165,33 +168,53 @@ describe('#messaging-adapter', () => {
       assert.property(result, 'receiver')
       assert.property(result, 'payload')
     })
-  })
-  it('should throws error if sender is not found', async () => {
-    try {
-      const ipfsId = 'unknowPeerId'
-      const data = {
-        sender: ipfsId,
-        uuid: 'fake-uuid'
+
+    it('should throws error if sender is not found', async () => {
+      try {
+        const ipfsId = 'unknowPeerId'
+        const data = {
+          sender: ipfsId,
+          uuid: 'fake-uuid'
+        }
+
+        await uut.generateAckMsg(data, thisNode)
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        console.log(err)
+        assert.include(err.message, 'Required encryption information for peer is not available.')
       }
+    })
 
-      await uut.generateAckMsg(data, thisNode)
+    it('should catch and throw errors', async () => {
+      try {
+        await uut.generateAckMsg()
 
-      assert.fail('Unexpected code path')
-    } catch (err) {
-      console.log(err)
-      assert.include(err.message, 'Required encryption information for peer is not available.')
-    }
-  })
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        console.log(err)
+        assert.include(err.message, 'Cannot read')
+      }
+    })
 
-  it('should catch and throw errors', async () => {
-    try {
-      await uut.generateAckMsg()
+    it('should throw an error if peerData is not specified', async () => {
+      try {
+        const ipfsId = '12D3KooWHS5A6Ey4V8fLWD64jpPn2EKi4r4btGN6FfkNgMTnfqVa'
+        const data = {
+          sender: ipfsId,
+          uuid: 'fake-uuid'
+        }
 
-      assert.fail('Unexpected code path')
-    } catch (err) {
-      console.log(err)
-      assert.include(err.message, 'Cannot read')
-    }
+        thisNode.peerData = []
+
+        const result = await uut.generateAckMsg(data, thisNode)
+        console.log(result)
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'Required encryption information for peer is not available.')
+      }
+    })
   })
 
   describe('#publishToPubsubChannel', () => {

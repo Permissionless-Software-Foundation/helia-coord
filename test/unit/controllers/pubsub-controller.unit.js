@@ -106,11 +106,12 @@ describe('#Pubsub-Controller', () => {
       assert.equal(result, false)
     })
   })
-  describe('#coinjoinPubsubHandler (default)', () => {
-    it('should return true', async () => {
-      const result = await uut.coinjoinPubsubHandler()
 
-      assert.isTrue(result)
+  describe('#coinjoinPubsubHandler', () => {
+    it('should always return true', () => {
+      const result = uut.coinjoinPubsubHandler()
+
+      assert.equal(result, true)
     })
   })
 })

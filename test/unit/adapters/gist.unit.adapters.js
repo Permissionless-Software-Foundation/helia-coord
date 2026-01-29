@@ -55,6 +55,7 @@ describe('#Adapter-Gist', () => {
       }
     })
   })
+
   describe('#getCRList2', () => {
     it('should get data from GitHub', async () => {
       // Mock network dependencies

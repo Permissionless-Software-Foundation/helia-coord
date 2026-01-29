@@ -166,6 +166,17 @@ describe('#Adapters - Encryption', () => {
       }
     })
 
+    it('should throw and error if peer public key is not available', async () => {
+      try {
+        const peer = {}
+        await uut.encryptMsg(peer, 'testMsg')
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'Peer public key is not available yet.')
+      }
+    })
+
     it('should encrypt a string', async () => {
       // Mock dependencies
       sandbox
