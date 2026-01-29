@@ -66,6 +66,10 @@ class AdaptersMock {
       subscribeToPubsubChannel: () => {
       },
       subscribeToCoordChannel: async () => {},
+      subscribeToPeerChannel: async () => {},
+      unsubscribeFromChannel: async () => {},
+      unsubscribeFromCoordChannel: async () => {},
+      cleanup: async () => {},
       publishToPubsubChannel: () => {
       },
       messaging: {

@@ -316,7 +316,8 @@ describe('#Adapter - Pubsub', () => {
     // the psf-ipfs-coordination-002 channel.
     it('should subscribe to a broadcast pubsub channel', async () => {
       // Mock dependencies
-      sandbox.stub(uut.ipfs.ipfs.pubsub, 'subscribe').resolves()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'addEventListener').returns()
 
       const chanName = 'test'
       const handler = () => {
@@ -324,15 +325,16 @@ describe('#Adapter - Pubsub', () => {
 
       const result = await uut.subscribeToPubsubChannel(chanName, handler, thisNode)
 
-      // assert.equal(true, true, 'Not throwing an error is a pass')
       assert.equal(result, true)
+      assert.equal(uut.channelSubscriptions.has(chanName), true)
     })
 
     // This tests the ability to subscribe to private, encrypted channels, like
     // the one this node uses to receive messages from other nodes.
     it('should subscribe to a private pubsub channel', async () => {
       // Mock dependencies
-      sandbox.stub(uut.ipfs.ipfs.pubsub, 'subscribe').resolves()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'addEventListener').returns()
 
       const chanName = thisNode.ipfsId
       const handler = () => {
@@ -340,8 +342,29 @@ describe('#Adapter - Pubsub', () => {
 
       const result = await uut.subscribeToPubsubChannel(chanName, handler, thisNode)
 
-      // assert.equal(true, true, 'Not throwing an error is a pass')
       assert.equal(result, true)
+      assert.equal(uut.channelSubscriptions.has(chanName), true)
+    })
+
+    it('should prevent duplicate subscriptions', async () => {
+      // Mock dependencies
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'addEventListener').returns()
+
+      const chanName = 'test-channel'
+      const handler = () => {}
+
+      // First subscription
+      const result1 = await uut.subscribeToPubsubChannel(chanName, handler, thisNode)
+      assert.equal(result1, true)
+
+      // Second subscription should be prevented
+      const result2 = await uut.subscribeToPubsubChannel(chanName, handler, thisNode)
+      assert.equal(result2, true)
+
+      // Subscribe should only be called once
+      assert.equal(uut.ipfs.ipfs.libp2p.services.pubsub.subscribe.callCount, 1)
+      assert.equal(uut.channelSubscriptions.size, 1)
     })
 
     it('should catch and throw errors', async () => {
@@ -514,6 +537,9 @@ describe('#Adapter - Pubsub', () => {
 
   describe('#subscribeToCoordChannel', () => {
     it('should subscribe to the coordination channel', async () => {
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'addEventListener').returns()
+
       const inObj = {
         chanName: globalConfig.DEFAULT_COORDINATION_ROOM,
         handler: () => {}
@@ -522,18 +548,248 @@ describe('#Adapter - Pubsub', () => {
       const result = await uut.subscribeToCoordChannel(inObj)
 
       assert.equal(result, true)
+      assert.equal(uut.coordChannelSubscriptions.has(globalConfig.DEFAULT_COORDINATION_ROOM), true)
+    })
+
+    it('should prevent duplicate subscriptions', async () => {
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'addEventListener').returns()
+
+      const inObj = {
+        chanName: globalConfig.DEFAULT_COORDINATION_ROOM,
+        handler: () => {}
+      }
+
+      // First subscription
+      const result1 = await uut.subscribeToCoordChannel(inObj)
+      assert.equal(result1, true)
+
+      // Second subscription should be prevented
+      const result2 = await uut.subscribeToCoordChannel(inObj)
+      assert.equal(result2, true)
+
+      // Subscribe should only be called once
+      assert.equal(uut.ipfs.ipfs.libp2p.services.pubsub.subscribe.callCount, 1)
+      assert.equal(uut.coordChannelSubscriptions.size, 1)
     })
 
     it('should catch, report, and throw errors', async () => {
       try {
-        // Force an error
+        // Force an error - need to provide valid input first
+        const inObj = {
+          chanName: globalConfig.DEFAULT_COORDINATION_ROOM,
+          handler: () => {}
+        }
         sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').throws(new Error('test error'))
 
-        await uut.subscribeToCoordChannel()
+        await uut.subscribeToCoordChannel(inObj)
 
         assert.fail('Unexpected code path')
       } catch (err) {
         // console.log('err: ', err)
+        assert.include(err.message, 'test error')
+      }
+    })
+  })
+
+  describe('#subscribeToPeerChannel', () => {
+    it('should subscribe to a peer channel', async () => {
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+
+      const peerId = '12D3KooWTestPeerId123456789'
+
+      const result = await uut.subscribeToPeerChannel(peerId)
+
+      assert.equal(result, true)
+      assert.equal(uut.channelSubscriptions.has(peerId), true)
+      const subscription = uut.channelSubscriptions.get(peerId)
+      assert.equal(subscription.peerChannel, true)
+    })
+
+    it('should prevent duplicate peer channel subscriptions', async () => {
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+
+      const peerId = '12D3KooWTestPeerId123456789'
+
+      // First subscription
+      const result1 = await uut.subscribeToPeerChannel(peerId)
+      assert.equal(result1, true)
+
+      // Second subscription should be prevented
+      const result2 = await uut.subscribeToPeerChannel(peerId)
+      assert.equal(result2, true)
+
+      // Subscribe should only be called once
+      assert.equal(uut.ipfs.ipfs.libp2p.services.pubsub.subscribe.callCount, 1)
+    })
+
+    it('should catch and throw errors', async () => {
+      try {
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').throws(new Error('test error'))
+
+        await uut.subscribeToPeerChannel('test-peer')
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'test error')
+      }
+    })
+  })
+
+  describe('#unsubscribeFromChannel', () => {
+    it('should unsubscribe from a channel', async () => {
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'addEventListener').returns()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'removeEventListener').returns()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'unsubscribe').resolves()
+
+      const chanName = 'test-channel'
+      const handler = () => {}
+
+      // First subscribe
+      await uut.subscribeToPubsubChannel(chanName, handler, thisNode)
+      assert.equal(uut.channelSubscriptions.has(chanName), true)
+
+      // Then unsubscribe
+      const result = await uut.unsubscribeFromChannel(chanName)
+      assert.equal(result, true)
+      assert.equal(uut.channelSubscriptions.has(chanName), false)
+    })
+
+    it('should return false if channel is not subscribed', async () => {
+      const chanName = 'non-existent-channel'
+
+      const result = await uut.unsubscribeFromChannel(chanName)
+      assert.equal(result, false)
+    })
+
+    it('should handle peer channels without listeners', async () => {
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'unsubscribe').resolves()
+
+      const peerId = '12D3KooWTestPeerId123456789'
+
+      // Subscribe to peer channel (no listener)
+      await uut.subscribeToPeerChannel(peerId)
+
+      // Unsubscribe should work even without a listener
+      const result = await uut.unsubscribeFromChannel(peerId)
+      assert.equal(result, true)
+      assert.equal(uut.channelSubscriptions.has(peerId), false)
+    })
+
+    it('should catch and throw errors', async () => {
+      try {
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'unsubscribe').throws(new Error('test error'))
+
+        // First subscribe to create the subscription
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'addEventListener').returns()
+        await uut.subscribeToPubsubChannel('test', () => {}, thisNode)
+
+        // Then try to unsubscribe (will throw)
+        await uut.unsubscribeFromChannel('test')
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'test error')
+      }
+    })
+  })
+
+  describe('#unsubscribeFromCoordChannel', () => {
+    it('should unsubscribe from a coordination channel', async () => {
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'addEventListener').returns()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'removeEventListener').returns()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'unsubscribe').resolves()
+
+      const chanName = globalConfig.DEFAULT_COORDINATION_ROOM
+      const handler = () => {}
+
+      // First subscribe
+      await uut.subscribeToCoordChannel({ chanName, handler })
+      assert.equal(uut.coordChannelSubscriptions.has(chanName), true)
+
+      // Then unsubscribe
+      const result = await uut.unsubscribeFromCoordChannel(chanName)
+      assert.equal(result, true)
+      assert.equal(uut.coordChannelSubscriptions.has(chanName), false)
+    })
+
+    it('should return false if channel is not subscribed', async () => {
+      const chanName = 'non-existent-coord-channel'
+
+      const result = await uut.unsubscribeFromCoordChannel(chanName)
+      assert.equal(result, false)
+    })
+
+    it('should catch and throw errors', async () => {
+      try {
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'unsubscribe').throws(new Error('test error'))
+
+        // First subscribe to create the subscription
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'addEventListener').returns()
+        await uut.subscribeToCoordChannel({ chanName: 'test', handler: () => {} })
+
+        // Then try to unsubscribe (will throw)
+        await uut.unsubscribeFromCoordChannel('test')
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'test error')
+      }
+    })
+  })
+
+  describe('#cleanup', () => {
+    it('should cleanup all subscriptions', async () => {
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'addEventListener').returns()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'removeEventListener').returns()
+      sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'unsubscribe').resolves()
+
+      // Subscribe to multiple channels
+      await uut.subscribeToPubsubChannel('channel1', () => {}, thisNode)
+      await uut.subscribeToPubsubChannel('channel2', () => {}, thisNode)
+      await uut.subscribeToPeerChannel('peer1')
+      await uut.subscribeToCoordChannel({ chanName: 'coord1', handler: () => {} })
+      await uut.subscribeToCoordChannel({ chanName: 'coord2', handler: () => {} })
+
+      assert.equal(uut.channelSubscriptions.size, 3)
+      assert.equal(uut.coordChannelSubscriptions.size, 2)
+
+      // Cleanup
+      const result = await uut.cleanup()
+
+      assert.equal(result, true)
+      assert.equal(uut.channelSubscriptions.size, 0)
+      assert.equal(uut.coordChannelSubscriptions.size, 0)
+    })
+
+    it('should handle cleanup when no subscriptions exist', async () => {
+      const result = await uut.cleanup()
+
+      assert.equal(result, true)
+      assert.equal(uut.channelSubscriptions.size, 0)
+      assert.equal(uut.coordChannelSubscriptions.size, 0)
+    })
+
+    it('should catch and throw errors', async () => {
+      try {
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'unsubscribe').throws(new Error('test error'))
+
+        // First subscribe to create subscriptions
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'subscribe').resolves()
+        sandbox.stub(uut.ipfs.ipfs.libp2p.services.pubsub, 'addEventListener').returns()
+        await uut.subscribeToPubsubChannel('test', () => {}, thisNode)
+
+        // Then try to cleanup (will throw)
+        await uut.cleanup()
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
         assert.include(err.message, 'test error')
       }
     })
