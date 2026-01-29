@@ -81,7 +81,10 @@ class CreateHeliaNode {
       // Configure services
       const services = {
         identify: identify(),
-        pubsub: gossipsub({ allowPublishToZeroTopicPeers: true })
+        pubsub: gossipsub({
+          allowPublishToZeroTopicPeers: true,
+          emitSelf: true // Enable receiving own messages for testing
+        })
       }
 
       // libp2p is the networking layer that underpins Helia

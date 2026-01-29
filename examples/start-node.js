@@ -31,6 +31,12 @@ async function start () {
 
     await ipfsCoord.start()
     console.log('IPFS and the coordination library is ready.')
+
+    // Add debugging
+    console.log('\n=== PUBSUB DEBUG ===')
+    const pubsubStatus = ipfsCoord.adapters.pubsub.getPubsubStatus()
+    console.log('Pubsub status:', JSON.stringify(pubsubStatus, null, 2))
+    console.log('===================\n')
   } catch (err) {
     console.error('Error in start(): ', err)
   }
