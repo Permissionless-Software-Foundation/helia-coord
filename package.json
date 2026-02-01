@@ -1,6 +1,6 @@
 {
   "name": "helia-coord",
-  "version": "1.9.1",
+  "version": "1.9.3",
   "description": "A JS library for helping IPFS peers coordinate, find a common interest, and stay connected around that interest.",
   "main": "./index.js",
   "type": "module",
