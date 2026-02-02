@@ -31,13 +31,13 @@
     "@libp2p/webrtc": "5.2.2",
     "@libp2p/websockets": "9.2.2",
     "@multiformats/multiaddr": "12.3.5",
-    "@multiformats/multiaddr-matcher": "1.6.0",
     "blockstore-fs": "2.0.2",
     "chai": "4.3.6",
     "cross-env": "7.0.3",
     "datastore-fs": "10.0.2",
     "delay": "6.0.0",
     "helia": "5.2.1",
+    "libp2p": "2.6.0",
     "lodash.clonedeep": "4.5.0",
     "minimal-slp-wallet": "7.1.4",
     "mocha": "10.0.0",
@@ -46,13 +46,21 @@
     "sinon": "14.0.0",
     "standard": "17.0.0"
   },
+  "overrides": {
+    "@multiformats/multiaddr-to-uri": "10.1.2",
+    "@multiformats/multiaddr-matcher": "1.6.0",
+    "helia": {
+      "libp2p": "2.6.0",
+      "@libp2p/upnp-nat": "3.0.0"
+    }
+  },
   "dependencies": {
     "@chris.troutner/retry-queue": "1.0.10",
     "bch-encrypt-lib": "2.1.1",
     "uuid": "9.0.0"
   },
   "peerDependencies": {
-    "libp2p": ">=2.6.0"
+    "libp2p": "=2.6.0"
   },
   "exports": {
     ".": {
