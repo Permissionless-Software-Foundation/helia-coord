@@ -37,7 +37,7 @@
     "datastore-fs": "10.0.2",
     "delay": "6.0.0",
     "helia": "5.2.1",
-    "libp2p": "2.6.0",
+    "libp2p": "2.7.2",
     "lodash.clonedeep": "4.5.0",
     "minimal-slp-wallet": "7.1.4",
     "mocha": "10.0.0",
@@ -50,7 +50,7 @@
     "@multiformats/multiaddr-to-uri": "10.1.2",
     "@multiformats/multiaddr-matcher": "1.6.0",
     "helia": {
-      "libp2p": "2.6.0",
+      "libp2p": "2.7.2",
       "@libp2p/upnp-nat": "3.0.0"
     }
   },
@@ -60,7 +60,7 @@
     "uuid": "9.0.0"
   },
   "peerDependencies": {
-    "libp2p": "=2.6.0"
+    "libp2p": "=2.7.2"
   },
   "exports": {
     ".": {
