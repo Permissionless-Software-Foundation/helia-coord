@@ -26,7 +26,7 @@ async function start () {
       type: 'node.js',
       // type: 'browser'
       nodeType: 'external',
-      debugLevel: 2
+      debugLevel: 3
     })
 
     await ipfsCoord.start()
