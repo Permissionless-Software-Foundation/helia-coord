@@ -10,6 +10,14 @@ import SlpWallet from 'minimal-slp-wallet'
 import IpfsCoord from '../index.js'
 import CreateHeliaNode from './create-helia-node.js'
 
+// Catch uncaught errors from libp2p internals to prevent crashes.
+process.on('uncaughtException', (err) => {
+  console.error('uncaughtException: ', err)
+})
+process.on('unhandledRejection', (err) => {
+  console.error('unhandledRejection: ', err)
+})
+
 async function start () {
   try {
     // Create an instance of bch-js and IPFS.
@@ -26,7 +34,7 @@ async function start () {
       type: 'node.js',
       // type: 'browser'
       nodeType: 'external',
-      debugLevel: 3
+      debugLevel: 2
     })
 
     await ipfsCoord.start()
