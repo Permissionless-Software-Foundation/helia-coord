@@ -53,6 +53,7 @@
   "overrides": {
     "@multiformats/multiaddr-to-uri": "10.1.2",
     "@multiformats/multiaddr-matcher": "1.6.0",
+    "@libp2p/utils": "6.7.1",
     "helia": {
       "libp2p": "2.7.2",
       "@libp2p/upnp-nat": "3.0.0"
