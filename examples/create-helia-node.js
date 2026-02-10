@@ -6,6 +6,8 @@
 
 // Global npm libraries
 import { createHelia } from 'helia'
+import { libp2pRouting } from '@helia/routers'
+import { bitswap } from '@helia/block-brokers'
 import fs from 'fs'
 import { FsBlockstore } from 'blockstore-fs'
 import { FsDatastore } from 'datastore-fs'
@@ -13,9 +15,10 @@ import { createLibp2p } from 'libp2p'
 import { tcp } from '@libp2p/tcp'
 import { noise } from '@chainsafe/libp2p-noise'
 import { yamux } from '@chainsafe/libp2p-yamux'
-// import { bootstrap } from '@libp2p/bootstrap'
+import { bootstrap } from '@libp2p/bootstrap'
 // import { identifyService } from 'libp2p/identify'
 import { identify } from '@libp2p/identify'
+import { kadDHT } from '@libp2p/kad-dht'
 // import { circuitRelayTransport } from 'libp2p/circuit-relay'
 import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
@@ -81,7 +84,11 @@ class CreateHeliaNode {
       // Configure services
       const services = {
         identify: identify(),
-        pubsub: gossipsub({ allowPublishToZeroTopicPeers: true })
+        pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+        dht: kadDHT({
+          protocol: '/psf/kad/1.0.0',
+          clientMode: false
+        })
       }
 
       // libp2p is the networking layer that underpins Helia
@@ -108,6 +115,15 @@ class CreateHeliaNode {
         streamMuxers: [
           yamux()
         ],
+        peerDiscovery: [
+          bootstrap({
+            list: [
+              '/ip4/78.46.129.7/tcp/4001/p2p/12D3KooWEBzgK8a5TpMfLotuj7jJnEK41gbD9LZK6qCpxNrX43E9',
+              '/ip4/5.78.70.29/tcp/4001/p2p/12D3KooWSREJ6x2DJSYrA1xRD2Qs6D4DHncsHmNnTHuMKHnqpG2i',
+              '/ip4/143.198.134.59/tcp/4101/p2p/12D3KooWHogx3RcyNiSuY6SzS8GxzTAqtDCYzy17yQ1StWaLvX9j'
+            ]
+          })
+        ],
         services
       })
 
@@ -115,7 +131,13 @@ class CreateHeliaNode {
       const helia = await createHelia({
         blockstore,
         datastore,
-        libp2p
+        libp2p,
+        routers: [
+          libp2pRouting(libp2p)
+        ],
+        blockBrokers: [
+          bitswap()
+        ]
       })
 
       return helia
