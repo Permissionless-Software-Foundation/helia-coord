@@ -1,6 +1,6 @@
 {
   "name": "helia-coord",
-  "version": "1.9.4",
+  "version": "2.0.0",
   "description": "A JS library for helping IPFS peers coordinate, find a common interest, and stay connected around that interest.",
   "main": "./index.js",
   "type": "module",
@@ -20,33 +20,14 @@
   },
   "homepage": "https://github.com/Permissionless-Software-Foundation/helia-coord#readme",
   "devDependencies": {
-    "@chainsafe/libp2p-gossipsub": "14.1.0",
-    "@chainsafe/libp2p-noise": "16.0.1",
-    "@chainsafe/libp2p-yamux": "7.0.1",
-    "@helia/block-brokers": "4.0.4",
-    "@helia/routers": "3.0.0",
     "@istanbuljs/esm-loader-hook": "0.2.0",
-    "@libp2p/bootstrap": "11.0.20",
-    "@libp2p/circuit-relay-v2": "3.2.2",
-    "@libp2p/identify": "3.0.22",
-    "@libp2p/kad-dht": "14.2.3",
-    "@libp2p/ping": "2.0.22",
-    "@libp2p/tcp": "10.1.2",
-    "@libp2p/webrtc": "5.2.2",
-    "@libp2p/websockets": "9.2.2",
-    "@multiformats/multiaddr": "12.3.5",
-    "blockstore-fs": "2.0.2",
     "chai": "4.3.6",
     "cross-env": "7.0.3",
-    "datastore-fs": "10.0.2",
     "delay": "6.0.0",
-    "helia": "5.2.1",
-    "libp2p": "2.7.2",
     "lodash.clonedeep": "4.5.0",
     "minimal-slp-wallet": "7.1.4",
     "mocha": "10.0.0",
     "nyc": "15.1.0",
-    "public-ip": "6.0.1",
     "sinon": "14.0.0",
     "standard": "17.0.0"
   },
@@ -60,12 +41,31 @@
     }
   },
   "dependencies": {
+    "@chainsafe/libp2p-gossipsub": "14.1.0",
+    "@chainsafe/libp2p-noise": "16.0.1",
+    "@chainsafe/libp2p-yamux": "7.0.1",
     "@chris.troutner/retry-queue": "1.0.10",
+    "@helia/block-brokers": "4.0.4",
+    "@helia/routers": "3.0.0",
+    "@helia/unixfs": "4.0.2",
+    "@libp2p/bootstrap": "11.0.20",
+    "@libp2p/circuit-relay-v2": "3.2.2",
+    "@libp2p/config": "1.1.0",
+    "@libp2p/identify": "3.0.22",
+    "@libp2p/kad-dht": "14.2.3",
+    "@libp2p/keychain": "5.0.14",
+    "@libp2p/ping": "2.0.22",
+    "@libp2p/tcp": "10.1.2",
+    "@libp2p/webrtc": "5.2.2",
+    "@libp2p/websockets": "9.2.2",
+    "@multiformats/multiaddr": "12.3.5",
     "bch-encrypt-lib": "2.1.1",
+    "blockstore-fs": "2.0.2",
+    "datastore-fs": "10.0.2",
+    "helia": "5.2.1",
+    "libp2p": "2.7.2",
+    "public-ip": "6.0.1",
     "uuid": "9.0.0"
-  },
-  "peerDependencies": {
-    "libp2p": "=2.7.2"
   },
   "exports": {
     ".": {
@@ -76,6 +76,14 @@
       },
       "require": {
         "default": "./index.js"
+      }
+    },
+    "./create-helia-node": {
+      "import": {
+        "default": "./lib/create-helia-node.js"
+      },
+      "require": {
+        "default": "./lib/create-helia-node.js"
       }
     }
   }
