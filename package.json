@@ -59,6 +59,7 @@
     "@libp2p/webrtc": "5.2.2",
     "@libp2p/websockets": "9.2.2",
     "@multiformats/multiaddr": "12.3.5",
+    "@multiformats/multiaddr-matcher": "1.6.0",
     "bch-encrypt-lib": "2.1.1",
     "blockstore-fs": "2.0.2",
     "datastore-fs": "10.0.2",
