@@ -15,9 +15,9 @@ Peers are other IPFS nodes that the application wants to keep track of. These ar
 
 ### Relays
 
-Some nodes using ipfs-coord can elect to become [Circuit Relays](https://docs.libp2p.io/concepts/circuit-relay/). Circuit Relays are critical for keeping the network censorship resistant. They allow nodes that otherwise would not be able to communicate with one another, do so. They assist in punching through network firewalls that would otherwise block communication. They allow the subnet to route around damage and dynamically adjust as nodes enter and leave the subnet.
+Some nodes using helia-coord can elect to become [Circuit Relays](https://docs.libp2p.io/concepts/circuit-relay/). Circuit Relays are critical for keeping the network censorship resistant. They allow nodes that otherwise would not be able to communicate with one another, do so. They assist in punching through network firewalls that would otherwise block communication. They allow the subnet to route around damage and dynamically adjust as nodes enter and leave the subnet.
 
-ipfs-coord will start by connecting to a small set of pre-configured Relays. As it discovers new peers in the subnetwork that have their `isCircuitRelay` flag set, it will expand its connections to as many Relays as it can find.
+helia-coord will start by connecting to a small set of pre-configured Relays. As it discovers new peers in the subnetwork that have their `isCircuitRelay` flag set, it will expand its connections to as many Relays as it can find.
 
 - `relayList` - An array of IPFS IDs (strings), identifying each Relay this node knows about.
 - `relayData` - An object with root properties that match the relay IPFS ID. Each root property represents a relay and contains the data about that relay.
