@@ -12,6 +12,7 @@ import ThisNodeUseCases from '../../../lib/use-cases/this-node-use-cases.js'
 import AdapterMock from '../../mocks/adapter-mock.js'
 import RelayUseCases from '../../../lib/use-cases/relay-use-cases.js'
 import mockData from '../../mocks/peers-mock.js'
+import { multiaddr } from '@multiformats/multiaddr'
 
 const adapters = new AdapterMock()
 
@@ -67,6 +68,85 @@ describe('#Use-Cases-Peer', () => {
           'Must inject instance of Relay Use Cases when instantiating Peer Use Cases library.'
         )
       }
+    })
+  })
+
+  describe('#getMultiaddrs', () => {
+    // A valid peer ID is required, because multiaddr() parses it as a CID.
+    const PEER_ID =
+      '12D3KooWDDrYph3KNxASGR5a4Bjw8thVTfK6MHiNCSz6GvygXwdR'
+    const NODE_ADDR = `/ip4/98.97.136.193/tcp/4001/p2p/${PEER_ID}`
+
+    let savedAnnounceMultiaddrs
+    let savedPeerId
+
+    beforeEach(() => {
+      savedAnnounceMultiaddrs = process.env.ANNOUNCE_MULTIADDRS
+      savedPeerId = adapters.ipfs.ipfsPeerId
+      adapters.ipfs.ipfsPeerId = PEER_ID
+    })
+
+    afterEach(() => {
+      adapters.ipfs.ipfsPeerId = savedPeerId
+
+      if (savedAnnounceMultiaddrs === undefined) {
+        delete process.env.ANNOUNCE_MULTIADDRS
+      } else {
+        process.env.ANNOUNCE_MULTIADDRS = savedAnnounceMultiaddrs
+      }
+    })
+
+    // Build a PeerUseCases instance after the environment is set, because the
+    // configured addresses are parsed in the constructor.
+    const makeUut = () => {
+      const relayUseCases = new RelayUseCases({
+        adapters,
+        bootstrapRelays: ['fake-multiaddr']
+      })
+      const localUut = new PeerUseCases({ adapters, relayUseCases })
+      localUut.updateThisNode({ thisNode })
+
+      return localUut
+    }
+
+    const stubNodeAddrs = () => {
+      sandbox.stub(adapters.ipfs.ipfs.libp2p, 'getMultiaddrs').returns([
+        multiaddr(`/ip4/127.0.0.1/tcp/4001/p2p/${PEER_ID}`),
+        multiaddr(NODE_ADDR)
+      ])
+    }
+
+    it('should return the filtered node multiaddrs when nothing is configured', () => {
+      delete process.env.ANNOUNCE_MULTIADDRS
+      stubNodeAddrs()
+
+      const addrs = makeUut().getMultiaddrs()
+
+      assert.deepEqual(addrs, [NODE_ADDR])
+    })
+
+    it('should append the operator-supplied announcement multiaddrs', () => {
+      process.env.ANNOUNCE_MULTIADDRS =
+        `/ip4/192.236.235.173/tcp/4103, /ip4/5.78.149.147/tcp/4101/p2p/${PEER_ID}`
+      stubNodeAddrs()
+
+      const addrs = makeUut().getMultiaddrs()
+
+      // An entry without a /p2p/ component gets this node's peer ID appended.
+      assert.include(addrs, `/ip4/192.236.235.173/tcp/4103/p2p/${PEER_ID}`)
+      // An entry that already has a peer ID is used as-is.
+      assert.include(addrs, `/ip4/5.78.149.147/tcp/4101/p2p/${PEER_ID}`)
+      assert.include(addrs, NODE_ADDR)
+      assert.equal(addrs.length, 3)
+    })
+
+    it('should not duplicate an address that is already advertised', () => {
+      process.env.ANNOUNCE_MULTIADDRS = NODE_ADDR
+      stubNodeAddrs()
+
+      const addrs = makeUut().getMultiaddrs()
+
+      assert.deepEqual(addrs, [NODE_ADDR])
     })
   })
 

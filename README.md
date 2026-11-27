@@ -97,6 +97,13 @@ When instantiating `IpfsCoord`, the following configuration properties can be pa
 | `tcpPort` | No | TCP port number. Used for auto-detecting the node's public multiaddr. |
 | `apiInfo` | No | A string (URL or IPFS hash) pointing to API documentation for the service this node provides. |
 
+### Environment variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `CONNECT_PREF` | `'cr'` | Connection preference announced to other peers. `'cr'` prefers circuit-relay connections, `'direct'` prefers direct ip4/ip6 connections. |
+| `ANNOUNCE_MULTIADDRS` | _(unset)_ | Comma-delimited list of multiaddrs added to this node's announcement. Use it when the node's public address can not be auto-detected — behind a NAT, a firewall, or a proxy such as a wireguard tunnel. Entries without a `/p2p/` component get this node's peer ID appended. See [Announcing an address behind a proxy](#announcing-an-address-behind-a-proxy). |
+
 When instantiating `CreateHeliaNode`, the following configuration properties can be passed:
 
 | Property | Default | Description |
@@ -107,6 +114,30 @@ When instantiating `CreateHeliaNode`, the following configuration properties can
 | `isCircuitRelay` | `false` | Whether to enable the circuit relay server. |
 | `bootstrapPeers` | PSF defaults | Array of multiaddr strings for bootstrap peer discovery. |
 | `getSeed` | Random | An async function returning a seed string for the libp2p keychain. Provide this to get a persistent IPFS peer ID across restarts. |
+
+### Announcing an address behind a proxy
+
+Auto-detection (`public-ip`) can only report an address that the host itself can see. A node
+behind a NAT, a firewall, or a wireguard/proxy tunnel has no way to learn the address that peers
+should dial, and `libp2p` can not see through the proxy either. That is why detection is
+best-effort and why announcements may end up holding only `p2p-circuit` addresses.
+
+Set `ANNOUNCE_MULTIADDRS` to the addresses the operator knows are reachable:
+
+```bash
+export ANNOUNCE_MULTIADDRS="/ip4/192.236.235.173/tcp/4103/p2p/12D3KooWJEGkUM5wmYt83MsDPGQPEpqwcktCiksyH9GykjPmyGXh"
+```
+
+- Added to `thisNode.ipfsMultiaddrs` and to every announcement published on the coordination channel.
+- Entries that omit `/p2p/` get this node's peer ID appended automatically.
+- Duplicates of auto-detected addresses are ignored.
+- A malformed entry throws at startup, so a typo fails immediately instead of publishing an
+  address that no peer can dial.
+- Unset or blank leaves behaviour untouched.
+
+Note that this changes the *announcement*, not what `libp2p` advertises through identify. If a
+peer needs the address outside the coordination channel, configure libp2p's
+`addresses.announce` as well.
 
 ## Development Environment
 

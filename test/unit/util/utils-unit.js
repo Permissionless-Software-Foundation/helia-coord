@@ -61,4 +61,47 @@ describe('#utils.js', () => {
       }
     })
   })
+
+  describe('#parseMultiaddrList', () => {
+    it('should return an empty array when the value is unset', () => {
+      assert.deepEqual(uut.parseMultiaddrList(), [])
+      assert.deepEqual(uut.parseMultiaddrList(''), [])
+      assert.deepEqual(uut.parseMultiaddrList('   '), [])
+    })
+
+    it('should parse a single multiaddr', () => {
+      const addr = '/ip4/192.236.235.173/tcp/4103/p2p/12D3KooWJEGkUM5wmYt83MsDPGQPEpqwcktCiksyH9GykjPmyGXh'
+
+      const result = uut.parseMultiaddrList(addr)
+
+      assert.deepEqual(result, [addr])
+    })
+
+    it('should split a comma-delimited list and trim whitespace', () => {
+      const addr1 = '/ip4/192.236.235.173/tcp/4103/p2p/12D3KooWJEGkUM5wmYt83MsDPGQPEpqwcktCiksyH9GykjPmyGXh'
+      const addr2 = '/ip4/5.78.149.147/tcp/4101/p2p/12D3KooWDDrYph3KNxASGR5a4Bjw8thVTfK6MHiNCSz6GvygXwdR'
+
+      const result = uut.parseMultiaddrList(`${addr1}, ${addr2}`)
+
+      assert.deepEqual(result, [addr1, addr2])
+    })
+
+    it('should ignore blank entries', () => {
+      const addr = '/ip4/192.236.235.173/tcp/4103'
+
+      const result = uut.parseMultiaddrList(`${addr},,  ,`)
+
+      assert.deepEqual(result, [addr])
+    })
+
+    it('should throw on a malformed multiaddr', () => {
+      try {
+        uut.parseMultiaddrList('192.236.235.173:4103')
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'ANNOUNCE_MULTIADDRS')
+      }
+    })
+  })
 })
